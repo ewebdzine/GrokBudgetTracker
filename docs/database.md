@@ -1,6 +1,6 @@
 # Database map
 
-Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0006` in order.
+Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0007` in order.
 Money: bills, budgets, debts and allocations are positive; in `transactions`, **negative = money out, positive = money in**.
 Months are stored as the first day of the month (`2026-01-01`).
 
@@ -21,6 +21,7 @@ erDiagram
   accounts ||--o{ transfers : "from_account / to_account"
   accounts ||--o{ debts : "account_id"
   income_sources ||--o{ income_events : "source_id"
+  transactions ||--o| income_events : "transaction_id"
   bill_templates ||--o{ bill_instances : "template_id"
   spending_budgets ||--o{ budget_months : "budget_id"
   debts ||--o{ debt_payments : "debt_id"
@@ -65,11 +66,11 @@ Every account the tracker knows about. Sync and categorizing are blocked until a
 | funding_role | text | `bills`, `spending`, `savings`, `debt`, `income`, `none` |
 | notes, created_at | | |
 
-### income_sources (0001)
-Expected recurring income: `id`, `name`, `expected_amount`, `due_day`, `account_id` -> accounts, `active`.
+### income_sources (0001, extended 0007)
+Expected income: `id`, `name`, `expected_amount` (per payment), `frequency` (`weekly`, `biweekly`, `semimonthly`, `monthly`, `irregular`), `next_expected_date` (anchor for weekly/biweekly), `due_day` (day of month for monthly), `account_id` -> accounts (where it lands), `active`, `notes`.
 
-### income_events (0001)
-Actual money in for a month: `id` text PK, `source_id` -> income_sources (null for one-offs), `month`, `received_date`, `amount`, `account_id`, `plaid_id`, `kind` (`income`, `one_off_income`, `transfer_in`, `refund`), `inferred` (bot guessed the source), `notes`. Refunds are tracked but not counted as income.
+### income_events (0001, extended 0007) - the income table
+Actual money received: `id` text PK, `transaction_id` -> transactions (the matching deposit; unique), `source_id` -> income_sources (null for one-offs), `month`, `received_date`, `amount`, `account_id`, `plaid_id`, `kind` (`income`, `one_off_income`, `transfer_in`, `refund`), `inferred` (bot guessed the source), `notes`. Refunds are tracked but not counted as income.
 
 ### bill_templates (0001, +category_id 0004)
 Recurring bill definitions: `id`, `name`, `default_amount`, `due_day` or `week` (1-5 when only the week is known), `category` (label), `category_id` -> categories, `payee_hint` (text the bank description starts with, used for matching), `unverified` (not yet confirmed against a real bill), `active`.
@@ -131,12 +132,16 @@ Key/value JSON: `snowball` -> `{"extra_per_month": 200}`; `balances` -> `{"<acco
 
 ## Views
 - **monthly_summary** (0002): one row per month with `income_expected`, `income_banked`, `other_income`, `fixed_planned`, `fixed_paid`, `fixed_left`, `fixed_left_count`, `one_offs_left`, `one_offs_left_count`, `spending_planned`, `spending_spent`.
+- **income** (0007): readable income table over income_events (excluding refunds): `date_received`, `amount`, `source_id`, `source_name`, `kind`, `account_id`, `transaction_id`, `month`, `notes`. Write to `income_events`.
+- **monthly_income** (0007): per month and source, `expected` (expected_amount x payments that month by frequency) vs `received`, plus an "Other income" row for one-offs and transfers in.
+- **income_source_suggestions** (0007): deposits seen 2+ times in 120 days that aren't linked to income yet, with average amount and days between.
 - **registered_accounts** (0003): active accounts; empty = setup not done.
 - **needs_review_transactions** (0006, replaces 0004's uncategorized_transactions): every transaction with review_status `needs_review` or `skipped`, oldest first, including backlog from days the review didn't run.
 - **needs_review_by_account** (0006): count, total, skipped-before count and oldest date per account; drives the review headline.
 - **allocation_check** (0005): split transactions with allocated vs unallocated amount.
 
 ## Functions
+- **income_expected_count(freq, anchor, due_day, month)** (0007): how many payments a source should make in a month.
 - **tx_sync_pending()** (0006): trigger function keeping `pending` = (`bank_status` = 'pending').
 - **dashboard_snapshot(p_month date) returns jsonb** (0002): everything the report templates need for one month: `month`, `summary`, `balances`, `snowball`, `income_sources`, `income_events`, `bills` (instances joined to templates), `one_offs` (this month + unpaid older), `budgets`, `transfers`, `transactions` (with matched bill/one-off name), `debts` (with paid to date).
 

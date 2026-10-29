@@ -1,11 +1,15 @@
--- FAKE sample data for trying the tracker. Run after all migrations. Every name/amount is invented.
+-- FAKE sample data for trying the tracker. Run after all migrations (0001-0007). Every name/amount is invented.
 insert into public.accounts (id,name,nickname,institution,account_type,last4,mask,kind,owner_name,funding_role) values
  ('chk-bills','Bills checking','Bills checking','Example Community Bank','checking','1111','1111','checking','Alex Sample','bills'),
  ('card-spend','Spending debit card','Spending card','Example Fintech','checking','2222','2222','checking','Alex Sample','spending'),
  ('cc-payoff','Rewards credit card','Payoff card','Example Card Co','credit_card','3333','3333','credit_card','Alex Sample','debt');
-insert into public.income_sources values ('client-a','Client A retainer',3000,1,'chk-bills',true),('client-b','Client B retainer',1500,1,'chk-bills',true);
+insert into public.income_sources (id,name,expected_amount,due_day,account_id,active,frequency,next_expected_date) values
+ ('client-a','Client A retainer',3000,1,'chk-bills',true,'monthly','2026-02-01'),
+ ('client-b','Client B retainer',1500,1,'chk-bills',true,'monthly','2026-02-01'),
+ ('paycheck','Part-time paycheck',620,null,'chk-bills',true,'biweekly','2026-01-16');
 insert into public.income_events (id,source_id,month,received_date,amount,account_id,kind,notes) values
- ('client-a-2026-01','client-a','2026-01-01','2026-01-02',3000,'chk-bills','income','January retainer');
+ ('client-a-2026-01','client-a','2026-01-01','2026-01-02',3000,'chk-bills','income','January retainer'),
+ ('paycheck-2026-01-02','paycheck','2026-01-01','2026-01-02',620,'chk-bills','income','Paycheck');
 insert into public.bill_templates (id,name,default_amount,due_day,category,payee_hint) values
  ('mortgage','Mortgage',1200,1,'Housing','EXAMPLE MORTGAGE'),('electric','Electric',140,12,'Utilities','EXAMPLE POWER'),
  ('internet','Internet',70,18,'Utilities','EXAMPLE ISP'),('auto-ins','Auto insurance',110,20,'Insurance','EXAMPLE INS'),('streaming','Streaming',16,5,'Subscriptions','STREAMCO');
@@ -28,3 +32,8 @@ update public.transactions t set matched_bill_instance=b.id from public.bill_ins
 insert into public.debts (snowball_order,name,apr,min_payment,starting_balance,as_of,account_id) values
  (1,'Store card',24.99,35,900,'2026-01-01',null),(2,'Payoff card',21.5,90,4200,'2026-01-01','cc-payoff'),(3,'Auto loan',6.9,320,11000,'2026-01-01',null);
 insert into public.settings values ('snowball','{"extra_per_month":200}'),('balances','{"chk-bills":{"available":2450.00,"as_of":"2026-01-14"}}');
+
+-- link income rows to their deposits
+insert into public.transactions (plaid_id,external_id,account_id,date,amount,description,category,bank_status) values ('sample-6','sample-6','chk-bills','2026-01-02',620,'EXAMPLE EMPLOYER PAYROLL','Income','posted');
+update public.income_events e set transaction_id = t.id from public.transactions t where (e.id,t.external_id) in (('client-a-2026-01','sample-1'),('paycheck-2026-01-02','sample-6'));
+update public.transactions t set expense_type='income', review_status='categorized', matched_income_event=e.id from public.income_events e where e.transaction_id=t.id;

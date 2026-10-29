@@ -1,4 +1,9 @@
 # Changelog
+## 0.4.0 - 2026-10-29
+- 0007 income: extends income_sources (frequency, next_expected_date) and income_events (transaction_id link); new views `income`, `monthly_income` (expected vs received) and `income_source_suggestions`; function income_expected_count.
+- Daily review offers "Income: <source>" for deposits and suggests recurring deposits as sources; onboarding income interview asks frequency and next date.
+- Report generator uses monthly_income expected totals when present in the snapshot.
+
 ## 0.3.0 - 2026-10-29
 - seed_categories: 26 common optional categories from widely used budget templates (YNAB, Ramsey, 50/30/20 lists), no amounts.
 - ONBOARDING step 4 (categories) and step 6 (income, bills, buckets, debts) rewritten as Grok-led one-question-at-a-time interviews with a confirm-before-save summary.

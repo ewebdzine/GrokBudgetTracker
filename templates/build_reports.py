@@ -27,7 +27,7 @@ TODAY=D(S.get('pulled_at','')[:10]) or dt.date.today()
 
 # ---------- numbers ----------
 sm=S['summary']; bills=S['bills']; oo=S['one_offs']; bud=S['budgets']; debts=S['debts']
-inc_exp=sum(i['expected_amount'] for i in S['income_sources'])
+inc_exp=sum(r['expected'] for r in S['monthly_income'] if r.get('source_id')) if S.get('monthly_income') else sum(i['expected_amount'] for i in S['income_sources'])  # optional: add monthly_income rows for the month to the snapshot
 inc_bank=sum(e['amount'] for e in S['income_events'] if e['kind']=='income')
 other_in=sum(e['amount'] for e in S['income_events'] if e['kind'] in('one_off_income','transfer_in'))
 refunds=sum(e['amount'] for e in S['income_events'] if e['kind']=='refund')

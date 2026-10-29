@@ -21,6 +21,7 @@
    If there are only a few (about 8 or fewer), list them all (date, description, amount).
 5. **Report auto-matches**: "Matched automatically: Electric $140.00 (due 1/12) -> cleared."
 6. **Interview one transaction at a time** for everything else. Each question shows date, account, description, amount and offers prefilled options, best guess first:
+   - for deposits: `Income: <source>` (creates or links an `income_events` row with `transaction_id` and `month`), `Income: one-off`, `Refund`, `Transfer`
    - `Recurring bill: <name>` (a near match: wrong amount or month)
    - `One-off bill: <category>`
    - `Budget bucket: <name>` (always include the bucket the charge most likely fits)
@@ -28,8 +29,9 @@
    - `Skip for now` (sets `review_status = 'skipped'`; it comes back in the next review)
    - a typed answer (free text, e.g. "transfer to savings" or "refund").
 7. **Write**: each answer sets `review_status = 'categorized'` and `reviewed_at`, and becomes `transaction_allocations` rows (one row for a single target, several for a split: `target_type` bill / one_off / bucket / debt with the matching id and amount; buckets get `budget_month`). Also set `transactions.expense_type`, `category_id` and the simple link column, mark bills `cleared`, create a `one_off_bills` row when needed, and add bucket amounts to `budget_months.spent`. Transfers and income don't create allocations; they set `matched_transfer` / `matched_income_event`.
-8. **Recap**: updated balance for every bucket touched ("Groceries: $310 of $500, $190 left"), a warning for any bucket over budget ("Shopping is $61.22 over its $100"), bills still unpaid this month, and anything skipped.
-9. If the queue is empty, send nothing. `bank_status` (pending/posted) is shown for information only; pending items can be reviewed too.
+8. **Income suggestions**: if `income_source_suggestions` has rows, ask "This deposit repeats about every N days at about $X. Add it as an income source?" (name, frequency, account) and link the past deposits.
+9. **Recap**: updated balance for every bucket touched ("Groceries: $310 of $500, $190 left"), a warning for any bucket over budget ("Shopping is $61.22 over its $100"), bills still unpaid this month, and anything skipped.
+10. If the queue is empty, send nothing. `bank_status` (pending/posted) is shown for information only; pending items can be reviewed too.
 
 Sample routine prompt: [docs/routines.md](routines.md).
 
@@ -38,7 +40,7 @@ For each new outgoing transaction:
 1. **Fixed bills**: find an unpaid `bill_instances` row this month (or last month if overdue) whose template `payee_hint` matches the start of the description and whose amount is within tolerance (exact for most bills; utilities can vary). Set `matched_bill_instance`, `expense_type = 'recurring_fixed'`, instance `status = 'cleared'`, `paid_amount`, `paid_date`, `paid_from`.
 2. **One-offs**: match an unpaid `one_off_bills` row by payee and amount; set `matched_one_off`, `expense_type = 'one_off'`, status `cleared`.
 3. **Transfers**: description shows a move between two registered accounts (or a card payment) -> `expense_type = 'transfer'`, link or create a `transfers` row.
-4. **Income**: deposits matching an `income_sources` row -> create/link an `income_events` row, `expense_type = 'income'`.
+4. **Income**: a deposit matching an `income_sources` row (account, amount within tolerance, around the expected date) -> create or link an `income_events` row with `transaction_id`, set `matched_income_event`, `expense_type = 'income'`, and advance `next_expected_date`.
 5. **Split payments**: one charge covering several bills or a bill plus bucket spending -> write `transaction_allocations` rows and check `allocation_check.unallocated = 0`.
 Anything ambiguous stays uncategorized for the user.
 

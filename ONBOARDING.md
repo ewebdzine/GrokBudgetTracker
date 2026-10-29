@@ -50,7 +50,7 @@ If a connection later needs re-login, the bot sets `status = 'needs_reauth'` and
 ## 6. Income, bills, buckets and debts (Grok-led interview)
 The bot asks **one question at a time** (a choice widget with a typed answer). Options are labeled `Recurring bill: <category>` or `Budget bucket: <name>` so it's clear what each entry becomes.
 1. **Settings**: your snowball extra per month (can be $0). Balances fill in from the first sync.
-2. **Income sources**, one at a time: name, expected amount, day it usually arrives, which account it lands in. "Any more income?" until you say no.
+2. **Income sources** (fills `income_sources`), one at a time: name, amount per payment, frequency (`weekly`, `biweekly`, `semimonthly`, `monthly`, `irregular`), next expected date (or day of month), and which account it lands in. "Any more income?" until you say no.
 3. **Fixed / recurring bills**, one at a time: name, amount, due day (or week of the month if it varies), category (`Recurring bill: Utilities`, `Recurring bill: Insurance`, ...), and which registered account pays it. It also asks for a word from the bank description so it can match it later, or offers to learn it from the first payment it sees.
 4. **Budget buckets**, one at a time: which bucket (`Budget bucket: Groceries`, `Budget bucket: Fuel`, ... from the categories you kept), monthly amount, and the funding account.
 5. **Debts**, one at a time: name, current balance, APR, minimum payment, the linked account if it's a card or loan, then the snowball order (smallest balance first by default).
