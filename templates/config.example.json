@@ -1,0 +1,144 @@
+{
+  "owner_label": "Your Name \u00b7 personal finances",
+  "account_note": "Bills checking = bills only; spending card = monthly spending budget; credit card = no new spending, paying it off.",
+  "bills_account_id": "chk-bills",
+  "bills_account_label": "Bills checking",
+  "spending_account_id": "card-spend",
+  "spending_account_label": "Spending card",
+  "timezone_label": "CT",
+  "colors": {
+    "accent": "#1f6f5c",
+    "bad": "#b3402f",
+    "warn": "#9a6b12"
+  },
+  "bill_groups": {
+    "Housing": "Housing & Loan",
+    "Utilities": "Utilities",
+    "Insurance": "Insurance",
+    "Subscriptions": "Subscriptions",
+    "Kids": "School",
+    "Savings": "Savings / Investing",
+    "Taxes": "Debt & Tax payments",
+    "Debt payment": "Debt & Tax payments"
+  },
+  "bill_group_order": [
+    "Housing & Loan",
+    "Utilities",
+    "Insurance",
+    "Subscriptions",
+    "School",
+    "Savings / Investing",
+    "Debt & Tax payments"
+  ],
+  "own_transfer_keywords": [
+    "TRANSFER"
+  ],
+  "card_payment_keywords": [
+    "CARD PAYMENT"
+  ],
+  "fee_keywords": [
+    "OVERDRAFT"
+  ],
+  "blank_template": {
+    "fixed_bills": [
+      [
+        "Housing & Loan",
+        [
+          [
+            "Mortgage / rent",
+            "1st",
+            1200
+          ]
+        ]
+      ],
+      [
+        "Utilities",
+        [
+          [
+            "Electric",
+            "12th",
+            140
+          ],
+          [
+            "Internet",
+            "18th",
+            70
+          ],
+          [
+            "Water",
+            "20th",
+            45
+          ]
+        ]
+      ],
+      [
+        "Insurance",
+        [
+          [
+            "Auto insurance",
+            "20th",
+            110
+          ]
+        ]
+      ],
+      [
+        "Subscriptions",
+        [
+          [
+            "Streaming",
+            "5th",
+            16
+          ]
+        ]
+      ]
+    ],
+    "one_off_groups": [
+      [
+        "Medical",
+        3
+      ],
+      [
+        "Auto repair",
+        2
+      ],
+      [
+        "Home & Hardware",
+        3
+      ],
+      [
+        "Other",
+        3
+      ]
+    ],
+    "budgets": [
+      [
+        "Groceries",
+        500
+      ],
+      [
+        "Fuel",
+        250
+      ],
+      [
+        "Food (eating out)",
+        150
+      ],
+      [
+        "Shopping",
+        100
+      ]
+    ],
+    "income": [
+      [
+        "Client A retainer",
+        3000,
+        "1st"
+      ],
+      [
+        "Client B retainer",
+        1500,
+        "1st"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{"month":"2026-01-01","pulled_at":"2026-01-14",
+ "summary":{"income_expected":4500,"income_banked":3000},
+ "balances":{"chk-bills":{"available":2450.00}},
+ "snowball":{"extra_per_month":200},
+ "income_sources":[{"id":"client-a","name":"Client A retainer","expected_amount":3000},{"id":"client-b","name":"Client B retainer","expected_amount":1500}],
+ "income_events":[{"source_id":"client-a","kind":"income","amount":3000,"received_date":"2026-01-02","notes":"January retainer"}],
+ "bills":[
+  {"kind":"fixed","id":"mortgage","name":"Mortgage","category":"Housing","due_date":"2026-01-01","amount":1200,"paid_amount":1200,"status":"cleared","unverified":false},
+  {"kind":"fixed","id":"streaming","name":"Streaming","category":"Subscriptions","due_date":"2026-01-05","amount":16,"paid_amount":16,"status":"cleared","unverified":false},
+  {"kind":"fixed","id":"electric","name":"Electric","category":"Utilities","due_date":"2026-01-12","amount":140,"paid_amount":140,"status":"cleared","unverified":false},
+  {"kind":"fixed","id":"internet","name":"Internet","category":"Utilities","due_date":"2026-01-18","amount":70,"paid_amount":null,"status":"unpaid","unverified":false},
+  {"kind":"fixed","id":"auto-ins","name":"Auto insurance","category":"Insurance","due_date":"2026-01-20","amount":110,"paid_amount":null,"status":"unpaid","unverified":true}],
+ "one_offs":[{"id":"dentist-2026-01","payee":"Example Dental","amount":180,"due_date":"2026-01-25","status":"unpaid","unverified":false,"carried_over_from":null}],
+ "budgets":[{"id":"groceries","name":"Groceries","planned":500,"spent":310},{"id":"fuel","name":"Fuel","planned":250,"spent":120},{"id":"dining","name":"Food (eating out)","planned":150,"spent":95},{"id":"shopping","name":"Shopping","planned":100,"spent":40}],
+ "transfers":[{"id":"budget-2026-01","from_account":"chk-bills","to_account":"card-spend","amount":1000,"planned_amount":1000,"date":"2026-01-02"}],
+ "transactions":[
+  {"date":"2026-01-14","amount":-22.5,"description":"CORNER CAFE","category":"Food (eating out)","pending":true,"matched":null},
+  {"date":"2026-01-12","amount":-140,"description":"EXAMPLE POWER AUTOPAY","category":"Utilities","pending":false,"matched":"Electric"},
+  {"date":"2026-01-02","amount":3000,"description":"CLIENT A ACH DEPOSIT","category":"Income","pending":false,"matched":null},
+  {"date":"2026-01-02","amount":-1000,"description":"TRANSFER TO SPENDING CARD","category":"Transfer","pending":false,"matched":null},
+  {"date":"2026-01-01","amount":-1200,"description":"EXAMPLE MORTGAGE PMT","category":"Housing","pending":false,"matched":"Mortgage"}],
+ "debts":[{"order":1,"name":"Store card","apr":24.99,"min":35,"start":900,"paid":0},{"order":2,"name":"Payoff card","apr":21.5,"min":90,"start":4200,"paid":0},{"order":3,"name":"Auto loan","apr":6.9,"min":320,"start":11000,"paid":0}]}

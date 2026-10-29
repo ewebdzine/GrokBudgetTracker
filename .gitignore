@@ -1,0 +1,7 @@
+templates/config.json
+/output/
+/snapshots/
+*.env
+.env*
+!.env.example
+__pycache__/

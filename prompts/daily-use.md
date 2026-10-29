@@ -1,0 +1,12 @@
+# Daily-use prompts
+- "Sync my accounts and match anything to bills."
+- "What's left to pay this month, and what will be left in my bills account?"
+- "Log a one-off: <payee> $<amount> due the <day>." (attach a photo of the bill if you have one)
+- "That $<amount> at <store> is a budget bucket: Groceries."
+- "Split the $<amount> <payee> payment: $<x> to <bill>, $<y> to the Shopping bucket."
+- "Create a <name> bucket, $<amount> a month, from <account>."
+- "Add a fixed bill: <name>, $<amount>, due the <day>, category <category>."
+- "I paid <bill> today from <account>."
+- "How is my snowball doing? What if I add $<amount> a month?"
+- "Build this month's dashboard and PDFs."
+- "Show me everything still uncategorized."
