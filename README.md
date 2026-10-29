@@ -7,7 +7,8 @@ A personal **budget + debt-snowball tracker** that runs inside **Grok Bot**, wit
 ## Features
 - **Account registry (required)** - every tracked checking, savings, credit-card, Venmo, PayPal or cash account is a row in `accounts` with nickname, institution, type, last 4, owner, Plaid connection status and a funding role (bills / spending / debt ...).
 - **Fixed bills** - `bill_templates` define recurring bills; each month gets `bill_instances` (unpaid -> paid -> cleared).
-- **One-off bills** - irregular bills (`one_off_bills`), with carry-over to the next month and optional receipt photo path.
+- **One-off bills** - irregular bills (`one_off_bills`), with carry-over to the next month.
+- **Bill photos and receipts** - send a photo; Grok reads it, confirms, stores the file in your private Supabase Storage bucket and links it (`documents`).
 - **Spending buckets** - monthly budgets (`spending_budgets` + `budget_months`) such as Groceries, Fuel, Dining out, Shopping.
 - **Expense types** - every transaction is labeled `recurring_fixed`, `one_off`, `budget_bucket`, `transfer` or `income`, and linked to the bill, one-off or bucket it belongs to.
 - **Categories template** - a default category list (`supabase/seed_categories.sql`) you can edit.
@@ -46,7 +47,7 @@ Finance connector (Plaid) --daily--> Finance bot --SQL via Supabase connector-->
 Full walkthrough: [ONBOARDING.md](ONBOARDING.md). Short version:
 1. **Create a free Supabase account** at [supabase.com/dashboard/sign-up](https://supabase.com/dashboard/sign-up) and **create one project** (free plan: 500 MB, no automatic backups, pauses after about a week idle; check current pricing for Pro).
 2. **Connect the Supabase connector** in Grok Bot and confirm the bot can list your project.
-3. **Apply the migrations in order** (`supabase/migrations/0001` -> `0006`). Have the bot explain each one and wait for your OK before running it.
+3. **Apply the migrations in order** (`supabase/migrations/0001` -> `0008`). Have the bot explain each one and wait for your OK before running it.
 4. **Load the category template**: `supabase/seed_categories.sql` (edit first if you want).
 5. **Register your bank accounts** (required): one `accounts` row per account; then connect each one through the Finance connector and record its Plaid ids. See ONBOARDING step 5.
 6. **Seed settings**: `settings` rows `snowball` (`{"extra_per_month": 0}`) and `balances` (`{"<account id>": {"available": 0}}`).
@@ -63,6 +64,12 @@ See [prompts/daily-use.md](prompts/daily-use.md). Examples:
 - "Build this month's dashboard and PDFs."
 - "When is the snowball done if I add $100 a month?"
 
+## Portability
+Everything is in **your own Supabase project**: every table (accounts, transactions, bills, buckets, income, debts, categories, settings) and every file (bill photos, receipts, statements in the private `bill-documents` Storage bucket, indexed by the `documents` table). Grok holds no copy of its own. To leave Grok, or move to another tool, any time:
+- **Data**: `pg_dump` your project (Supabase dashboard > Database > connection string), or use the dashboard's backup/export.
+- **Files**: download the `bill-documents` bucket (Supabase dashboard Storage, or the Supabase CLI / storage API). The `documents.storage_path` column tells you which file belongs to which bill or transaction.
+The schema is plain Postgres and documented in [docs/database.md](docs/database.md).
+
 ## Repo map
 | Path | What |
 |---|---|
@@ -72,6 +79,7 @@ See [prompts/daily-use.md](prompts/daily-use.md). Examples:
 | `supabase/migrations/` | Numbered SQL migrations (schema only, no data) |
 | `supabase/seed_categories.sql` | Default category list (no amounts) |
 | `supabase/seed_example.sql` | Fake sample data |
+| `supabase/functions/bill-documents` | Optional Edge Function to upload documents and make signed URLs |
 | `templates/` | Report generators, config, sample snapshot and rendered sample output |
 | `prompts/` | Finance bot setup prompt and daily-use prompts |
 | `docs/routines.md` | Daily Transaction Review and other routine prompts |

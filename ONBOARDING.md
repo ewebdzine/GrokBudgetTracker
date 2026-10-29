@@ -11,7 +11,7 @@ Go step by step. The bot should explain each step in plain language and wait for
 In Grok Bot, add the Supabase connector and sign in **with the same Supabase account you just created** (same GitHub, ChatGPT or email login), otherwise Grok won't see your project. Ask the bot: *"List my Supabase projects."* Confirm it shows the project you just made. Tell the bot that project is the budget ledger.
 
 ## 3. Apply migrations in order
-Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0006. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
+Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0008. Migration 0008 creates the private `bill-documents` Storage bucket and the `documents` table, so bill photos and receipts stay in your project too. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
 
 ## 4. Categories (Grok-led interview)
 `supabase/seed_categories.sql` preloads a standard category list: the core set (housing, utilities, insurance, groceries, fuel, dining out, medical, transfers, income ...) plus **common optional categories** taken from widely used budget templates (YNAB, Ramsey, 50/30/20 lists): childcare, kids activities, pets and vet, personal care, clothing, health/pharmacy, fitness, phone, car payment, parking/transit, household supplies, lawn and garden, HOA, home improvement, charitable giving, holidays, travel, hobbies, fun money, emergency fund, retirement, education savings, annual fees, work expenses, miscellaneous.
@@ -21,6 +21,9 @@ The bot runs this as an interview; you don't edit SQL:
 2. **Ask one category at a time**, as a question with options `Keep`, `Drop`, `Rename…` and a typed answer. It can go a group at a time ("Keep all of Utilities?") when you'd rather move fast. The optional categories are shown as suggestions.
 3. **Ask whether you want to add your own**: for each one, name, group, and type (`Recurring bill`, `Budget bucket` or `One-off bill`). Repeat until you say done.
 4. **Confirm**: it shows the final kept/added list, then loads the seed and saves your choices (dropped ones are set `active = false`, so they can come back later).
+
+## 4b. Bill photos (optional)
+To let Grok save photos you send, deploy the Edge Function in `supabase/functions/bill-documents` (Supabase CLI: `supabase functions deploy bill-documents`), set a secret with `supabase secrets set UPLOAD_SECRET=<random>`, and save that secret in the Grok vault when Grok asks. Without it, you can upload files yourself in the Supabase dashboard (Storage > bill-documents) and tell Grok which bill they belong to.
 
 ## 5. Register and connect your bank accounts (required)
 The bot will not sync or categorize until at least one account is registered (`select * from registered_accounts`).

@@ -1,4 +1,4 @@
--- FAKE sample data for trying the tracker. Run after all migrations (0001-0007). Every name/amount is invented.
+-- FAKE sample data for trying the tracker. Run after all migrations (0001-0008). Every name/amount is invented.
 insert into public.accounts (id,name,nickname,institution,account_type,last4,mask,kind,owner_name,funding_role) values
  ('chk-bills','Bills checking','Bills checking','Example Community Bank','checking','1111','1111','checking','Alex Sample','bills'),
  ('card-spend','Spending debit card','Spending card','Example Fintech','checking','2222','2222','checking','Alex Sample','spending'),
@@ -37,3 +37,12 @@ insert into public.settings values ('snowball','{"extra_per_month":200}'),('bala
 insert into public.transactions (plaid_id,external_id,account_id,date,amount,description,category,bank_status) values ('sample-6','sample-6','chk-bills','2026-01-02',620,'EXAMPLE EMPLOYER PAYROLL','Income','posted');
 update public.income_events e set transaction_id = t.id from public.transactions t where (e.id,t.external_id) in (('client-a-2026-01','sample-1'),('paycheck-2026-01-02','sample-6'));
 update public.transactions t set expense_type='income', review_status='categorized', matched_income_event=e.id from public.income_events e where e.transaction_id=t.id;
+
+-- fake document rows (metadata only; no real files are uploaded)
+insert into public.documents (storage_path,file_name,mime_type,size_bytes,sha256,doc_type,one_off_bill_id,ocr_text,notes) values
+ ('2026/01/00000000-0000-4000-8000-000000000001-dentist-bill.jpg','dentist-bill.jpg','image/jpeg',245000,repeat('a',64),'bill_photo','dentist-2026-01','EXAMPLE DENTAL  Amount due $180.00  Due 01/25/2026','Sample bill photo');
+insert into public.documents (storage_path,file_name,mime_type,size_bytes,sha256,doc_type,transaction_id,notes)
+ select '2026/01/00000000-0000-4000-8000-000000000002-cafe-receipt.png','cafe-receipt.png','image/png',88000,repeat('b',64),'receipt',id,'Sample receipt'
+ from public.transactions where external_id='sample-5';
+insert into public.documents (storage_path,file_name,mime_type,size_bytes,sha256,doc_type,notes) values
+ ('2026/01/00000000-0000-4000-8000-000000000003-january-statement.pdf','january-statement.pdf','application/pdf',412000,repeat('c',64),'statement','Sample statement, not linked');

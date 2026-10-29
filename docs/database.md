@@ -1,6 +1,6 @@
 # Database map
 
-Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0007` in order.
+Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0008` in order.
 Money: bills, budgets, debts and allocations are positive; in `transactions`, **negative = money out, positive = money in**.
 Months are stored as the first day of the month (`2026-01-01`).
 
@@ -22,6 +22,10 @@ erDiagram
   accounts ||--o{ debts : "account_id"
   income_sources ||--o{ income_events : "source_id"
   transactions ||--o| income_events : "transaction_id"
+  one_off_bills ||--o{ documents : "one_off_bill_id"
+  bill_instances ||--o{ documents : "bill_instance_id"
+  transactions ||--o{ documents : "transaction_id"
+  income_events ||--o{ documents : "income_event_id"
   bill_templates ||--o{ bill_instances : "template_id"
   spending_budgets ||--o{ budget_months : "budget_id"
   debts ||--o{ debt_payments : "debt_id"
@@ -114,6 +118,21 @@ Check `transactions_expense_link_chk`: `recurring_fixed` needs a bill instance, 
 
 ### transaction_allocations (0005)
 Split one transaction across several targets: `transaction_id`, `target_type` (`bill`, `one_off`, `bucket`, `debt`), exactly one of `bill_instance_id` / `one_off_bill_id` / `spending_budget_id` (+ `budget_month`) / `debt_id`, `amount` > 0, `notes`. Checks enforce exactly one target and that it matches `target_type`. Allocations for a transaction should sum to `abs(amount)`; see `allocation_check`.
+
+### documents (0008) - bill photos, receipts, statements
+Metadata for files stored in the private Storage bucket `bill-documents` (same Supabase project).
+| Column | Type | Meaning |
+|---|---|---|
+| id | uuid PK | |
+| storage_bucket | text | Always `bill-documents` |
+| storage_path | text | Object name `<yyyy>/<mm>/<uuid>-<file>` (full: `bill-documents/<yyyy>/<mm>/<uuid>-<file>`); unique |
+| file_name, mime_type, size_bytes | | Original name, type, size |
+| sha256 | text | Hex hash of the file; unique when set, so the same photo isn't stored twice |
+| doc_type | text | `bill_photo`, `receipt`, `statement`, `other` |
+| uploaded_at | timestamptz | |
+| one_off_bill_id / bill_instance_id / transaction_id / income_event_id | | What it belongs to; **at most one** is set (check constraint) |
+| notes, ocr_text | text | Notes; the text Grok read from the image (optional) |
+RLS on, no policies, no grants to anon/authenticated. The bucket is private with no storage policies; files are viewed through short-lived signed URLs. `one_off_bills.receipt_path` (0001) is legacy.
 
 ### expense_types (0004)
 Lookup: `recurring_fixed`, `one_off`, `budget_bucket`, `transfer`, `income`.

@@ -35,6 +35,16 @@
 
 Sample routine prompt: [docs/routines.md](routines.md).
 
+## Photo -> one-off bill (documents)
+1. The user sends a photo or PDF of a bill or receipt in chat.
+2. Grok reads it: payee, amount, due date, account/invoice number (kept to last 4), and what it's for. It never stores card numbers.
+3. Grok **confirms** with one question: "Example Dental, $180.00, due 1/25 - save as `One-off bill: Medical`?" with options to fix any field, link it to an existing bill or transaction instead, or cancel.
+4. On yes: upload the file to the `bill-documents` bucket at `<yyyy>/<mm>/<uuid>-<file>` and insert the `documents` row (`doc_type`, `sha256`, `ocr_text`). If the sha256 already exists, reuse that row and say so.
+5. Create the `one_off_bills` record (or link an existing one, a `bill_instances` row, or a transaction) and set the document's link column.
+6. Later, to show it, Grok creates a signed URL (valid about 10 minutes) and opens or sends that. Never a public link.
+
+How files get into Storage: the Supabase connector runs SQL but has no Storage upload tool. Use the optional Edge Function in `supabase/functions/bill-documents` (`/upload`, `/signed-url`, protected by a secret you set in Supabase and save in the Grok vault), or upload in the Supabase dashboard (Storage > bill-documents) and let Grok insert the row.
+
 ## Bill matching
 For each new outgoing transaction:
 1. **Fixed bills**: find an unpaid `bill_instances` row this month (or last month if overdue) whose template `payee_hint` matches the start of the description and whose amount is within tolerance (exact for most bills; utilities can vary). Set `matched_bill_instance`, `expense_type = 'recurring_fixed'`, instance `status = 'cleared'`, `paid_amount`, `paid_date`, `paid_from`.
