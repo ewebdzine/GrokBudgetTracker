@@ -13,8 +13,14 @@ In Grok Bot, add the Supabase connector and sign in. Ask the bot: *"List my Supa
 ## 3. Apply migrations in order
 Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0006. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
 
-## 4. Categories
-Review `supabase/seed_categories.sql`, remove what you don't use, add your own, then ask the bot to run it.
+## 4. Categories (Grok-led interview)
+`supabase/seed_categories.sql` preloads a standard category list: the core set (housing, utilities, insurance, groceries, fuel, dining out, medical, transfers, income ...) plus **common optional categories** taken from widely used budget templates (YNAB, Ramsey, 50/30/20 lists): childcare, kids activities, pets and vet, personal care, clothing, health/pharmacy, fitness, phone, car payment, parking/transit, household supplies, lawn and garden, HOA, home improvement, charitable giving, holidays, travel, hobbies, fun money, emergency fund, retirement, education savings, annual fees, work expenses, miscellaneous.
+
+The bot runs this as an interview; you don't edit SQL:
+1. **Show the full list first**, grouped by `parent_group` (Housing & Loan, Utilities, Insurance, Spending, One-off, Kids, Savings / Investing, Transfers, Income, ...), each with its type (recurring bill, budget bucket, one-off).
+2. **Ask one category at a time**, as a question with options `Keep`, `Drop`, `Rename…` and a typed answer. It can go a group at a time ("Keep all of Utilities?") when you'd rather move fast. The optional categories are shown as suggestions.
+3. **Ask whether you want to add your own**: for each one, name, group, and type (`Recurring bill`, `Budget bucket` or `One-off bill`). Repeat until you say done.
+4. **Confirm**: it shows the final kept/added list, then loads the seed and saves your choices (dropped ones are set `active = false`, so they can come back later).
 
 ## 5. Register and connect your bank accounts (required)
 The bot will not sync or categorize until at least one account is registered (`select * from registered_accounts`).
@@ -41,10 +47,14 @@ The bot inserts one `accounts` row per account with `connected = false`.
 - **Venmo / PayPal / cash**: register them as accounts of type `venmo`, `paypal` or `cash`. Import their activity by CSV export or manual entry with `source = 'venmo'` / `'paypal'` (use their transaction id as `external_id`) or `'manual'` for cash.
 If a connection later needs re-login, the bot sets `status = 'needs_reauth'` and tells you.
 
-## 6. Settings, income, bills, buckets, debts
-- `settings`: `snowball` -> `{"extra_per_month": 0}`, `balances` -> `{"<bills account id>": {"available": 0}}`.
-- Tell the bot your income sources, fixed bills (name, amount, due day, category, a payee hint from the bank description), spending buckets (amount and funding account) and debts (balance, APR, minimum, snowball order).
-- Ask the bot to create this month's `bill_instances` and `budget_months` rows.
+## 6. Income, bills, buckets and debts (Grok-led interview)
+The bot asks **one question at a time** (a choice widget with a typed answer). Options are labeled `Recurring bill: <category>` or `Budget bucket: <name>` so it's clear what each entry becomes.
+1. **Settings**: your snowball extra per month (can be $0). Balances fill in from the first sync.
+2. **Income sources**, one at a time: name, expected amount, day it usually arrives, which account it lands in. "Any more income?" until you say no.
+3. **Fixed / recurring bills**, one at a time: name, amount, due day (or week of the month if it varies), category (`Recurring bill: Utilities`, `Recurring bill: Insurance`, ...), and which registered account pays it. It also asks for a word from the bank description so it can match it later, or offers to learn it from the first payment it sees.
+4. **Budget buckets**, one at a time: which bucket (`Budget bucket: Groceries`, `Budget bucket: Fuel`, ... from the categories you kept), monthly amount, and the funding account.
+5. **Debts**, one at a time: name, current balance, APR, minimum payment, the linked account if it's a card or loan, then the snowball order (smallest balance first by default).
+6. **Summary and confirm**: before saving anything, it shows a summary (income total, each bill with due day and paying account, buckets with totals, debts in snowball order, and what's left over each month). You can fix any line, then say "save". It writes `income_sources`, `bill_templates`, `spending_budgets`, `debts` and `settings`, and creates this month's `bill_instances` and `budget_months` rows.
 
 ## 7. Reports
 Copy `templates/config.example.json` to `templates/config.json`, set labels and the bills/spending account ids, then ask: *"Build this month's dashboard and PDFs."*
