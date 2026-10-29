@@ -25,13 +25,15 @@ Notes:
 - Never put account numbers beyond the last 4, Plaid ids, or keys in `DATA`.
 - The Page shows status as of the date in `asOf`; it is not live. Grok refreshes it after the Daily Transaction Review or at month end.
 
-## Bills by week
+## Bills by week (timeline)
 
-The Bills section has a **List | By week** toggle next to the All / Unpaid / Paid filter. By week groups bills by week of the month, each under a header with that week's total and unpaid amount:
+The Bills section has a **List | By week** toggle next to the All / Unpaid / Paid filter. By week is a timeline: one heading per week of the month, with that week's total and unpaid amount, then every bill in due-date order, each led by its date (e.g. "Mon 1/5"), with a Fixed or One-off marker, the amount and paid status.
 
 - Week 1: days 1-7
 - Week 2: days 8-14
 - Week 3: days 15-21
 - Week 4: day 22 to month end (29-31 fold into week 4)
 
-The week is computed from `due` (`M/D`), so no extra DATA fields are needed. The status filter still applies inside the By week view; week totals always cover all of that week's bills. The PDF Monthly Budget Plan and the HTML dashboard from `build_reports.py` use the same weeks (in both, unpaid one-offs carried over from an earlier month are listed in week 1).
+The week and weekday are computed from `due` (`M/D`) and the year in `month`, so no extra DATA fields are needed. The status filter still applies inside By week; week totals always cover all of that week's bills.
+
+The Monthly Budget Plan PDF and the HTML dashboard from `build_reports.py` use the same structure: the PDF's whole bills section is a **Bills timeline** (week headings with subtotals, a dotted rail of bills by date, a FIXED / ONE-OFF label, amount, status, and an overall total), replacing the old Fixed bills and One-off bills tables. Carried-over unpaid one-offs go under the week of their due date when it falls in this month; otherwise under Week 1, marked "carried over". The Where the Money Went PDF keeps its by-category tables.

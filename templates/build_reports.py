@@ -75,21 +75,24 @@ def chip(txt,kind): return f'<span class="chip {kind}">{E(txt)}</span>'
 def week_of(d): return min((d.day-1)//7+1,4) if d else 1  # 1-7, 8-14, 15-21, 22-end (29-31 fold into week 4)
 WK={1:'1st–7th',2:'8th–14th',3:'15th–21st',4:'22nd–end'}
 rows=defaultdict(list)
-for b in bills: rows[week_of(D(b['due_date']))].append(('fixed',b))
-for o in oo: rows[1 if o.get('carried_over_from') else week_of(D(o['due_date']))].append(('oneoff',o))
+def _wk(b):
+    d=D(b['due_date'])
+    return week_of(d) if d and (d.year,d.month)==(first.year,first.month) else 1
+for b in bills: rows[_wk(b)].append(('fixed',b))
+for o in oo: rows[_wk(o)].append(('oneoff',o))
 if xfer: rows[1].append(('xfer',xfer))
 def billrow(k,b):
     if k=='xfer':
         return f'''<div class="row paid"><div class="ck on">✓</div><div class="nm">Move the budget to the spending account<div class="sub"><span class="tag">TRANSFER</span> planned {m(b['planned_amount'])}, moved {m(b['amount'])}</div></div>{chip('Done','ok')}<div class="amt">{m(b['amount'])}</div></div>'''
     name=b.get('name') or b.get('payee'); paid=b['status']!='unpaid'; d=D(b['due_date'])
-    sub=b.get('category') or ('One-off' + (' · carried over' if b.get('carried_over_from') else ''))
+    sub=(b.get('category') or '') + (' · carried over' if b.get('carried_over_from') else '')
     if b.get('unverified'): sub+=' · unverified'
     if paid: st=chip('Cleared' if b['status']=='cleared' else 'Paid','ok')
     elif d and d<TODAY: st=chip(f'Past due {d.strftime("%-m/%-d")}','bad')
     else: st=chip(f'Due {d.strftime("%-m/%-d")}','warn')
     amt=b.get('paid_amount') if paid and b.get('paid_amount') else b['amount']
     cls='paid' if paid else ('late' if d and d<TODAY else 'due')
-    return f'<div class="row {cls}"><div class="ck {"on" if paid else ""}">{"✓" if paid else ""}</div><div class="nm">{E(name)}<div class="sub">{E(sub)}</div></div>{st}<div class="amt">{m(amt,True)}</div></div>'
+    return f'<div class="row {cls}"><div class="ck {"on" if paid else ""}">{"✓" if paid else ""}</div><div class="dt">{d.strftime("%a %-m/%-d") if d else "—"}</div><div class="nm">{E(name)} <span class="tag{"" if k=="fixed" else " oo"}">{"FIXED" if k=="fixed" else "ONE-OFF"}</span><div class="sub">{E(sub.strip(" ·"))}</div></div>{st}<div class="amt">{m(amt,True)}</div></div>'
 weeks_html=''
 for w in sorted(rows):
     its=sorted(rows[w],key=lambda r:(r[0]=='xfer',(r[1].get('due_date') or '')))
@@ -129,7 +132,7 @@ CSS='''body{margin:0;background:#f6f6f3;font:14px/1.45 -apple-system,"Segoe UI",
 .row.paid .nm{color:#7a827e}.ck{width:17px;height:17px;border:1.5px solid #c5cac6;border-radius:4px;display:grid;place-items:center;font-size:11px;color:#fff;flex:none}.ck.on{background:#1f6f5c;border-color:#1f6f5c}
 .nm{flex:1;font-weight:600}.sub{font-weight:400;font-size:11.5px;color:#8a918d}.amt{width:110px;text-align:right;font:700 13.5px Menlo,monospace}
 .chip{font-size:11px;padding:2px 9px;border-radius:10px;white-space:nowrap}.chip.ok{background:#dcefe8;color:#1f6f5c}.chip.bad{background:#fbe2dd;color:#a3341f}.chip.warn{background:#fbf0d8;color:#8a6516}
-.tag{font:600 9.5px Menlo,monospace;letter-spacing:.8px;background:#e3ece8;color:#1f6f5c;border-radius:4px;padding:1px 5px}.tag.dark{background:#1f6f5c;color:#fff}
+.tag{font:600 9.5px Menlo,monospace;letter-spacing:.8px;background:#e3ece8;color:#1f6f5c;border-radius:4px;padding:1px 5px}.tag.oo{background:#efe6f6;color:#6b3fa0}.dt{font-weight:700;min-width:64px;font-variant-numeric:tabular-nums}.tag.dark{background:#1f6f5c;color:#fff}
 .wk{padding:9px 18px;background:#f3f5f3;border-top:1px solid #e6e8e5;font-size:11px;letter-spacing:1px;display:flex;gap:8px;align-items:center}.gold{color:#9a6b12;font:600 12px Menlo,monospace}
 .brow{display:flex;align-items:center;gap:14px;padding:10px 18px;border-top:1px solid #f0f1ef}.bn{width:130px;font-weight:600}.bar{flex:1;height:6px;background:#e3e7e4;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:#1f6f5c}
 table{width:100%;border-collapse:collapse;font-size:12.5px}td{padding:6px 18px;border-top:1px solid #f0f1ef}td:last-child{text-align:right;white-space:nowrap}tr.pend td{background:#fffaf0}.pos{color:#1f6f5c}
@@ -202,35 +205,62 @@ ib=[[i['name'],m(i['expected_amount']),'1st',CHK(any(e.get('source_id')==i['id']
 ib+=[[('Other: '+e['notes'])[:48],m(e['amount'],True),D(e['received_date']).strftime('%-m/%-d'),CHK(True)] for e in S['income_events'] if e['kind'] in('one_off_income','transfer_in')]
 ib.append(['Total income',f'{m(inc_exp)} + other {m(other_in,True)}','',''])
 st.append(table(['Income','Expected','Date','Received'],ib,[3.6,1.6,0.6,1.2],right=(1,),center=(2,3)))
-st.append(Paragraph('Fixed bills',H2))
-body,grp=grouped_bills(lambda b: ['','','','','',''] if b is None else [b['name']+(' *' if b['unverified'] else ''),o_(D(b['due_date']).day),m(b['amount'],True),m(b.get('paid_amount'),True) if b['status']!='unpaid' else '',CHK(not b['unverified']),CHK(b['status']!='unpaid')])
-body.append(['Total fixed bills','',m(planned_fixed,True),m(sum(b.get('paid_amount') or 0 for b in bills if b['status']!='unpaid'),True),'',''])
-st.append(table(['Bill','Due','Planned','Actual','Verified','Paid'],body,[3.1,0.6,1.0,1.0,0.65,0.65],right=(2,3),center=(1,4,5),groups=grp))
-st.append(Paragraph('* Not yet confirmed against a bill or bank charge.',N))
-
 ob=[[o['payee']+(' (carried over)' if o.get('carried_over_from') else '')+(' *' if o['unverified'] else ''),D(o['due_date']).strftime('%-m/%-d'),m(o['amount'],True),CHK(o['status']!='unpaid')] for o in oo]
 ob.append(['Total one-offs','',m(planned_oo,True),f'{m(oo_left_amt,True)} left'])
-st.append(KeepTogether([Paragraph('One-off bills',H2),table(['Bill','Due','Amount','Paid'],ob,[4.3,0.7,1.1,0.9],right=(2,),center=(1,3))]))
-# Bills by week of the month (fixed + one-offs; carried-over one-offs count in week 1, like the HTML)
-def weekly_bills():
-    wk=defaultdict(list)
-    for b in bills: wk[week_of(D(b['due_date']))].append((b['name'],b))
-    for o in oo: wk[1 if o.get('carried_over_from') else week_of(D(o['due_date']))].append((o['payee']+(' (carried over)' if o.get('carried_over_from') else ''),o))
-    body=[];grp=[]
-    for w in range(1,5):
-        its=sorted(wk.get(w,[]),key=lambda r:r[1]['due_date'])
-        tot=sum(b['amount'] for _,b in its); un=sum(b['amount'] for _,b in its if b['status']=='unpaid')
-        grp.append(len(body)+1); body.append([f'Week {w} ({WK[w]}) · {m(tot,True)} total · {m(un,True)} unpaid' if its else f'Week {w} ({WK[w]}) · no bills due','','',''])
-        for n,b in its: body.append([n+(' *' if b.get('unverified') else ''),D(b['due_date']).strftime('%-m/%-d'),m(b['amount'],True),CHK(b['status']!='unpaid')])
-    body.append(['Total bills','',m(planned_fixed+planned_oo,True),f'{m(bills_left,True)} left'])
-    return body,grp
-st.append(Paragraph('Bills by week',H2))
-wb,wg=weekly_bills()
-st.append(table(['Bill','Due','Amount','Paid'],wb,[4.3,0.7,1.1,0.9],right=(2,),center=(1,3),groups=wg))
-st.append(Paragraph('Week 1 = 1st–7th, Week 2 = 8th–14th, Week 3 = 15th–21st, Week 4 = 22nd to month end. Includes fixed and one-off bills.',N))
+# Bills timeline: one heading per week, every bill (fixed + one-off) in due-date order on a dotted rail
+from reportlab.platypus import Flowable
+def bill_week(b):
+    d=D(b['due_date'])
+    if d and (d.year,d.month)==(first.year,first.month): return week_of(d),d,False
+    return 1,d,bool(b.get('carried_over_from'))  # carried over from an earlier month with no due date this month
+class Rail(Flowable):
+    def __init__(s,h,top,bot,color): Flowable.__init__(s); s.h=h; s.top=top; s.bot=bot; s.c=color
+    def wrap(s,aw,ah): s.w=aw; return aw,s.h
+    def draw(s):
+        cv=s.canv; x=s.w/2; y=s.h/2; cv.setStrokeColor(colors.HexColor('#C9C9C9')); cv.setLineWidth(1)
+        cv.line(x,0 if not s.bot else y,x,s.h if not s.top else y)
+        cv.setFillColor(s.c); cv.setStrokeColor(colors.white); cv.circle(x,y,3.4,fill=1,stroke=1)
+RH=20
+TL=ParagraphStyle('tl',fontName='Helvetica',fontSize=9.5,leading=12)
+TLD=ParagraphStyle('tld',fontName='Helvetica-Bold',fontSize=9.5,leading=12,alignment=2)
+TLR=ParagraphStyle('tlr',fontName='Helvetica',fontSize=9.5,leading=12,alignment=2)
+WH=ParagraphStyle('wh',parent=H2,spaceBefore=10,spaceAfter=2)
+OK='#1F6F5C'; WARN='#8A6516'; BAD='#A3341F'
+def tl_status(b,d):
+    if b['status']!='unpaid': return ('Cleared' if b['status']=='cleared' else 'Paid'),OK
+    if d and d<TODAY: return 'Past due',BAD
+    return 'Unpaid',WARN
+wk=defaultdict(list)
+for b in bills: w,d,c=bill_week(b); wk[w].append((d,b['name'],'Fixed',b,c))
+for o in oo: w,d,c=bill_week(o); wk[w].append((d,o['payee'],'One-off',o,c or bool(o.get('carried_over_from'))))
+st.append(Paragraph('Bills timeline',H2))
+st.append(Paragraph('Every bill for the month, fixed and one-off, by the date it comes out. Week 1 = 1st–7th, Week 2 = 8th–14th, Week 3 = 15th–21st, Week 4 = 22nd to month end.',N))
+for w in range(1,5):
+    its=sorted(wk.get(w,[]),key=lambda r:(r[0] or first))
+    tot=sum(r[3]['amount'] for r in its); un=sum(r[3]['amount'] for r in its if r[3]['status']=='unpaid')
+    head=Table([[Paragraph(f'Week {w} ({WK[w]})',WH),Paragraph(f'<font color="#666666">{m(tot,True)}' + (f' · {m(un,True)} unpaid' if un else (' · all paid' if its else '')) + '</font>',ParagraphStyle('ws',parent=N,alignment=2))]],colWidths=[4.5*inch,2.5*inch])
+    head.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'BOTTOM'),('LEFTPADDING',(0,0),(-1,-1),6),('RIGHTPADDING',(0,0),(-1,-1),6),('LINEBELOW',(0,0),(-1,0),0.6,colors.HexColor('#999999'))]))
+    if not its:
+        st.append(KeepTogether([head,Paragraph('No bills due this week.',N)])); continue
+    rows=[]
+    for k,(d,name,kind,b,carried) in enumerate(its):
+        txt,col=tl_status(b,d)
+        amt=b.get('paid_amount') if b['status']!='unpaid' and b.get('paid_amount') else b['amount']
+        mark=f'<font name="Helvetica-Bold" size="7" color="#666666">{kind.upper()}</font>'
+        extra=(' <font size="8" color="#A3341F">carried over</font>' if carried else '')+(' *' if b.get('unverified') else '')
+        rows.append([Paragraph(d.strftime('%a %-m/%-d') if d else '—',TLD),Rail(RH,k==0,k==len(its)-1,colors.HexColor(col)),
+                     Paragraph(f'{E(name)}&nbsp;&nbsp;{mark}{extra}',TL),Paragraph(m(amt,True),TLR),Paragraph(f'<font color="{col}"><b>{txt}</b></font>',TLR)])
+    t=Table(rows,colWidths=[0.85*inch,0.3*inch,3.85*inch,1.0*inch,1.0*inch],rowHeights=[RH]*len(rows))
+    t.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0),('LEFTPADDING',(1,0),(1,-1),0),('RIGHTPADDING',(1,0),(1,-1),0),('LINEBELOW',(2,0),(-1,-2),0.3,colors.HexColor('#E4E4E4'))]))
+    st.append(KeepTogether([head,Spacer(1,3),t]))
+tt=Table([['Total bills',f'{m(planned_fixed+planned_oo,True)} · {m(bills_left,True)} left to pay']],colWidths=[3.5*inch,3.5*inch])
+tt.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica-Bold',9.5),('ALIGN',(1,0),(1,0),'RIGHT'),('BACKGROUND',(0,0),(-1,-1),hdr),('LINEABOVE',(0,0),(-1,0),0.6,grid)]))
+st.append(Spacer(1,6)); st.append(tt)
+if any(r[3].get('unverified') for v in wk.values() for r in v): st.append(Paragraph('* Not yet confirmed against a bill or bank charge.',N))
 sbody=[[b['name'],m(b['planned']),m(b['spent'])] for b in bud]+[['Total moved to spending account',m(spend_plan),f'moved {m(xfer["amount"])}' if xfer else '']]
 st.append(KeepTogether([Paragraph('Spending budget',H2),table(['Category','Budget','Spent'],sbody,[3.6,1.6,1.8],right=(1,2))]))
-st.append(Paragraph('Month at a glance',H2))
+from reportlab.platypus import CondPageBreak
+st.append(CondPageBreak(2.5*inch)); st.append(Paragraph('Month at a glance',H2))
 g=[['Income expected',m(inc_exp)],['All income in (regular + one-off + transfers)',m(inc_bank+other_in,True)],['Planned expenses (fixed + one-offs + spending budget)',m(planned_exp,True)],['Able to save',m(able_to_save,True)],['Bills left to pay',f'{m(bills_left,True)}  ({m(fixed_left_amt,True)} fixed + {m(oo_left_amt,True)} one-off)'],
    ['Bills account available now',m(bal,True)],['Pending (in and out)',m(pending,True)],['Left in bills account after all bills',m(left_after,True)],['Left if unpaid one-offs are not owed',m(left_after_fixed_only,True)]]
 st.append(KeepTogether(table(['Item','Amount'],g,[4.6,2.4],right=(1,),total=False)))

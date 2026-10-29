@@ -62,6 +62,12 @@ export default function BudgetDashboard() {
     { n: 3, range: "15th–21st" },
     { n: 4, range: "22nd–end" },
   ];
+  const year = Number(DATA.month.split(" ")[1]);
+  const dayLabel = (due: string) => {
+    const [mo, d] = due.split("/").map(Number);
+    return `${new Date(year, mo - 1, d).toLocaleDateString("en-US", { weekday: "short" })} ${due}`;
+  };
+  const dueKey = (due: string) => due.split("/").map(Number).reduce((a, b) => a * 100 + b, 0);
   const billRow = (b: (typeof DATA.bills)[number]) => [
     b.name,
     b.category ? `${b.kind}: ${b.category}` : b.kind,
@@ -114,11 +120,12 @@ export default function BudgetDashboard() {
               return (
                 <Section key={w.n} heading={`Week ${w.n} · ${w.range}`} caption={`${money(sum(all.map((b) => b.amount)))} total · ${due ? `${money(due)} unpaid` : "all paid"}`}>
                   {shown.length ? (
-                    <Table
-                      columns={["Bill", "Type", "Due", "Amount", "Status"]}
-                      align={["start", "start", "start", "end", "start"]}
-                      rows={shown.map(billRow)}
-                    />
+                    <Rows rows={[...shown].sort((x, y) => dueKey(x.due) - dueKey(y.due)).map((b) => ({
+                      title: `${dayLabel(b.due)} · ${b.name}`,
+                      detail: b.category ? `${b.kind === "One-off" ? "One-off" : "Fixed"} · ${b.category}` : (b.kind === "One-off" ? "One-off" : "Fixed"),
+                      meta: money(b.amount),
+                      status: b.status === "unpaid" ? { label: "Unpaid", tone: "warning" } : { label: b.status === "cleared" ? "Cleared" : "Paid", tone: "success" },
+                    }))} />
                   ) : (
                     <Text>{all.length ? "No bills match this filter." : "No bills due this week."}</Text>
                   )}
