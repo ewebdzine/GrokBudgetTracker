@@ -20,6 +20,17 @@ A personal **budget + debt-snowball tracker** that runs inside **Grok Bot**, wit
 - **Daily bank sync and matching** - the bot pulls new transactions from the Finance (Plaid-based) connector, matches them to bills, and asks you about the rest one at a time.
 - **Monthly dashboard and PDFs** - `templates/build_reports.py` renders an HTML dashboard, a *Monthly Budget Plan* PDF and a *Where the Money Went* PDF from one JSON snapshot. `templates/build_blank.py` prints blank fill-in-by-pencil versions.
 
+## What you get
+**Interactive dashboard Page (default).** A Grok Bot Page refreshed each month: headline metrics, bills with status, bucket bars, income expected vs received, the needs-review queue per account, and the debt snowball, with switchable views. See [docs/images/dashboard-page.md](docs/images/dashboard-page.md) and [templates/DASHBOARD.md](templates/DASHBOARD.md).
+
+**Printable PDFs (optional).** Rendered from the same month's data (fake sample shown):
+
+| Monthly Budget Plan | Where the Money Went |
+|---|---|
+| ![Monthly Budget Plan](docs/images/2026-01-budget-plan.png) | ![Where the Money Went](docs/images/2026-01-where-the-money-went.png) |
+
+Blank fill-in versions: [plan](docs/images/monthly-budget-plan-blank.png), [where the money went](docs/images/where-the-money-went-blank.png).
+
 ## How it works inside Grok Bot
 ```
 Finance connector (Plaid) --daily--> Finance bot --SQL via Supabase connector--> Supabase (this schema)

@@ -10,4 +10,4 @@ Sample routine prompts. Replace <placeholders>. Create them with the Grok Bot ro
 > Roll my budget tracker into the new month: create bill instances and bucket rows, carry over unpaid one-offs, create the planned spending-account transfer, and build this month's Budget Plan PDF.
 
 **Month-end report (last day of the month)**
-> Build last month's dashboard and the Where the Money Went PDF from dashboard_snapshot and send me the PDF with a 3-line summary.
+> Read settings.reports. If page is true, refresh my Budget Dashboard Page for this month (same Page every month, per GrokBudgetTracker templates/DASHBOARD.md) and send me the link. If pdf is true, also build the Monthly Budget Plan and Where the Money Went PDFs from dashboard_snapshot and send them. Add a 3-line summary: income received vs expected, bills left, and any bucket over budget.

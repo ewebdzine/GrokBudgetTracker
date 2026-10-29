@@ -1,4 +1,9 @@
 # Changelog
+## 0.5.0 - 2026-10-29
+- Interactive Grok Bot Page is the default monthly view: `templates/dashboard.canvas.tsx` (sample data) and `templates/DASHBOARD.md` (monthly fill and same-Page update process, query map).
+- PDFs become the printable option; `settings.reports` (`{"page": true, "pdf": false}`) chosen in ONBOARDING step 7; month-end routine updated.
+- README "What you get" with PDF previews in docs/images/.
+
 ## 0.4.0 - 2026-10-29
 - 0007 income: extends income_sources (frequency, next_expected_date) and income_events (transaction_id link); new views `income`, `monthly_income` (expected vs received) and `income_source_suggestions`; function income_expected_count.
 - Daily review offers "Income: <source>" for deposits and suggests recurring deposits as sources; onboarding income interview asks frequency and next date.

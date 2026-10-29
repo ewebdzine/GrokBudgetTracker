@@ -56,8 +56,12 @@ The bot asks **one question at a time** (a choice widget with a typed answer). O
 5. **Debts**, one at a time: name, current balance, APR, minimum payment, the linked account if it's a card or loan, then the snowball order (smallest balance first by default).
 6. **Summary and confirm**: before saving anything, it shows a summary (income total, each bill with due day and paying account, buckets with totals, debts in snowball order, and what's left over each month). You can fix any line, then say "save". It writes `income_sources`, `bill_templates`, `spending_budgets`, `debts` and `settings`, and creates this month's `bill_instances` and `budget_months` rows.
 
-## 7. Reports
-Copy `templates/config.example.json` to `templates/config.json`, set labels and the bills/spending account ids, then ask: *"Build this month's dashboard and PDFs."*
+## 7. Reports: Page, PDF or both
+Grok asks one question with three options:
+- `Interactive Page` (default): a Grok Bot Page with this month's dashboard, refreshed in place each month ([templates/DASHBOARD.md](templates/DASHBOARD.md));
+- `Printable PDF`: the Monthly Budget Plan and Where the Money Went PDFs;
+- `Both`.
+It saves the answer in `settings` as key `reports`, for example `{"page": true, "pdf": false}`. If PDFs are on, copy `templates/config.example.json` to `templates/config.json` and set labels and the bills/spending account ids. You can change this any time ("send me PDFs too").
 
 ## 8. Daily Transaction Review and other routines
 Pick the time you want your **Daily Transaction Review** each morning (for example 7:00 AM). The bot creates a routine from the sample prompt in [docs/routines.md](docs/routines.md). How it works: [docs/workflows.md#daily-transaction-review](docs/workflows.md). The review covers every `needs_review` (and previously skipped) transaction, including backlog from days it didn't run, with a count per account. Optionally add the month-rollover and month-end report routines from the same file.
