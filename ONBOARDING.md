@@ -8,7 +8,7 @@ Go step by step. The bot should explain each step in plain language and wait for
 3. Free-plan caveats: no automatic backups, projects pause after about a week with no activity, two active free projects per account. Consider Pro if you rely on it daily (check Supabase's current pricing).
 
 ## 2. Connect the Supabase connector
-In Grok Bot, add the Supabase connector and sign in. Ask the bot: *"List my Supabase projects."* Confirm it shows the project you just made. Tell the bot that project is the budget ledger.
+In Grok Bot, add the Supabase connector and sign in **with the same Supabase account you just created** (same GitHub, ChatGPT or email login), otherwise Grok won't see your project. Ask the bot: *"List my Supabase projects."* Confirm it shows the project you just made. Tell the bot that project is the budget ledger.
 
 ## 3. Apply migrations in order
 Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0006. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
