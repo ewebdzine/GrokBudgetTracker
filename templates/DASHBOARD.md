@@ -13,13 +13,12 @@ The file in this repo holds **fake sample data** in one `DATA` constant at the t
 ## What feeds each section
 | Section | `DATA` field | Source |
 |---|---|---|
-| Headline: income received vs expected | `income[]` | `select source_name, frequency, expected, received from monthly_income where month = :m and source_id is not null` |
-| Headline: bills paid/unpaid, Bills table + Segmented (All / Unpaid / Paid) | `bills[]` | `dashboard_snapshot(:m) -> 'bills'` (recurring instances with template name, category, due date, status) and `-> 'one_offs'` (kind `One-off`) |
-| Headline: bucket spend vs budget, Budget buckets bars | `buckets[]` | `dashboard_snapshot(:m) -> 'budgets'` (budget_months planned/spent joined to spending_budgets) |
+| Headline: income received vs expected, Income table | `income[]` (`source`, `frequency`, `expected`, `received`) | `select source_name as source, frequency, expected, received from monthly_income where month = :m and source_id is not null`. The `source_id is not null` filter drops the "Other income (one-off, transfers in)" row, so one-off income and transfers in are not counted in the headline. Refunds are never income. |
+| Headline: bills paid/unpaid, Bills table + Segmented (All / Unpaid / Paid) | `bills[]` (`name`, `kind`, `category`, `due`, `amount`, `status`) | `dashboard_snapshot(:m) -> 'bills'`: `name`, `category`, `due_date`, `amount`, `status`, with `kind` = `Recurring`. Plus `-> 'one_offs'` (raw `one_off_bills` rows, including unpaid ones carried over from earlier months): `name` = `payee`, `kind` = `One-off`, `due` from `due_date`. One-offs have no text `category`; look up `categories.name` by `category_id`, or leave `category` as `""` (the Page then shows just the kind). Format `due` as `M/D`. |
+| Headline: bucket spend vs budget, Budget buckets bars | `buckets[]` (`name`, `budget`, `spent`) | `dashboard_snapshot(:m) -> 'budgets'`: `budget` = `planned`, `spent` = `spent` (from `budget_months`). |
 | Left over (planned) | computed | income received - all bills planned - bucket budgets |
-| Income table (Segmented: Buckets / Income) | `income[]` | `monthly_income` as above |
-| Needs review | `review[]` | `select nickname, items, total, skipped_before, oldest from needs_review_by_account` (label accounts by nickname and last 4 from `accounts`) |
-| Debt snowball | `debts[]`, `snowball` | `dashboard_snapshot(:m) -> 'debts'` + `settings.snowball`; payoff months, clear dates and interest from the same simulation `build_reports.py` prints (`snowball` in its JSON output) |
+| Needs review | `review[]` (`account`, `items`, `total`, `skipped`, `oldest`) | `select r.nickname, a.last4, r.items, r.total, r.skipped_before as skipped, r.oldest from needs_review_by_account r join accounts a on a.id = r.account_id`. `account` = `nickname (…last4)`. The view has no `last4`, so the join is required. `skipped` is items the user skipped in an earlier review. Backlog from days the review didn't run shows up in `items` and in an older `oldest`. |
+| Debt snowball | `debts[]` (`order`, `name`, `apr`, `min`, `balance`, `clears`), `snowball` (`extra`, `months`, `debtFree`, `interest`) | `dashboard_snapshot(:m) -> 'debts'`: `balance` = `start - paid` (the snapshot has no `balance` field). `snowball.extra` = `settings.snowball.extra_per_month`. `clears`, `months`, `debtFree` and `interest` come from the payoff simulation that `build_reports.py` prints (`snowball` in its JSON output). |
 
 Notes:
 - Amounts are plain numbers; the Page formats them.
