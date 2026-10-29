@@ -17,12 +17,12 @@ insert into public.one_off_bills (id,payee,amount,month,due_date,status) values 
 insert into public.spending_budgets values ('groceries','Groceries',500,'card-spend',1),('fuel','Fuel',250,'card-spend',2),('dining','Food (eating out)',150,'card-spend',3),('shopping','Shopping',100,'card-spend',4);
 insert into public.budget_months (budget_id,month,planned,spent) values ('groceries','2026-01-01',500,310),('fuel','2026-01-01',250,120),('dining','2026-01-01',150,95),('shopping','2026-01-01',100,40);
 insert into public.transfers values ('budget-2026-01','2026-01-01','chk-bills','card-spend',1000,1000,'2026-01-02',null,'done','Monthly spending budget');
-insert into public.transactions (plaid_id,account_id,date,amount,description,category,pending) values
- ('sample-1','chk-bills','2026-01-02',3000,'CLIENT A ACH DEPOSIT','Income',false),
- ('sample-2','chk-bills','2026-01-01',-1200,'EXAMPLE MORTGAGE PMT','Housing',false),
- ('sample-3','chk-bills','2026-01-02',-1000,'TRANSFER TO SPENDING CARD','Transfer',false),
- ('sample-4','chk-bills','2026-01-12',-140,'EXAMPLE POWER AUTOPAY','Utilities',false),
- ('sample-5','chk-bills','2026-01-14',-22.50,'CORNER CAFE','Food (eating out)',true);
+insert into public.transactions (plaid_id,external_id,account_id,date,amount,description,category,bank_status) values
+ ('sample-1','sample-1','chk-bills','2026-01-02',3000,'CLIENT A ACH DEPOSIT','Income','posted'),
+ ('sample-2','sample-2','chk-bills','2026-01-01',-1200,'EXAMPLE MORTGAGE PMT','Housing','posted'),
+ ('sample-3','sample-3','chk-bills','2026-01-02',-1000,'TRANSFER TO SPENDING CARD','Transfer','posted'),
+ ('sample-4','sample-4','chk-bills','2026-01-12',-140,'EXAMPLE POWER AUTOPAY','Utilities','posted'),
+ ('sample-5','sample-5','chk-bills','2026-01-14',-22.50,'CORNER CAFE','Food (eating out)','pending');
 update public.transactions t set matched_bill_instance=b.id from public.bill_instances b join public.bill_templates bt on bt.id=b.template_id
  where t.description like bt.payee_hint||'%' and b.month='2026-01-01';
 insert into public.debts (snowball_order,name,apr,min_payment,starting_balance,as_of,account_id) values
