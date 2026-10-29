@@ -1,6 +1,6 @@
 # Database map
 
-Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0005` in order.
+Postgres on Supabase, schema `public`. Built by `supabase/migrations/0001`-`0006` in order.
 Money: bills, budgets, debts and allocations are positive; in `transactions`, **negative = money out, positive = money in**.
 Months are stored as the first day of the month (`2026-01-01`).
 
@@ -86,7 +86,7 @@ Buckets: `id`, `name`, `monthly_amount`, `funded_by` -> accounts (which account 
 ### budget_months (0001)
 Bucket per month (`unique (budget_id, month)`): `planned`, `spent`. `spent` is maintained by the bot from transactions/allocations tagged to the bucket.
 
-### transactions (0001, extended 0004, 0005)
+### transactions (0001, extended 0004, 0005, 0006)
 Every money movement from any source.
 | Column | Type | Meaning |
 |---|---|---|
@@ -95,7 +95,11 @@ Every money movement from any source.
 | source | text | `plaid`, `venmo`, `paypal`, `csv`, `manual` |
 | external_id | text not null | Source's id (Plaid txn id, Venmo/PayPal id, CSV row hash, `manual-<date>-<n>`); `unique (account_id, source, external_id)` is the dedupe key |
 | plaid_id | text unique | Plaid transaction id; required when source = plaid |
-| date, amount, description, pending | | Negative amount = money out |
+| date, amount, description | | Negative amount = money out |
+| bank_status | text | What the bank/source says: `pending` or `posted` (0006) |
+| pending | boolean | Legacy; kept in sync from bank_status by trigger. Don't write it directly |
+| review_status | text | Your review: `needs_review` (every import starts here), `categorized`, `auto_applied` (obvious recurring-bill match), `skipped` (0006) |
+| reviewed_at | timestamptz | When review_status last left needs_review |
 | category | text | Free-text display label (legacy) |
 | category_id | text -> categories | Structured category |
 | expense_type | text -> expense_types | null = not yet categorized |
@@ -128,10 +132,12 @@ Key/value JSON: `snowball` -> `{"extra_per_month": 200}`; `balances` -> `{"<acco
 ## Views
 - **monthly_summary** (0002): one row per month with `income_expected`, `income_banked`, `other_income`, `fixed_planned`, `fixed_paid`, `fixed_left`, `fixed_left_count`, `one_offs_left`, `one_offs_left_count`, `spending_planned`, `spending_spent`.
 - **registered_accounts** (0003): active accounts; empty = setup not done.
-- **uncategorized_transactions** (0004): transactions with no `expense_type`, oldest first; drives the one-at-a-time questions.
+- **needs_review_transactions** (0006, replaces 0004's uncategorized_transactions): every transaction with review_status `needs_review` or `skipped`, oldest first, including backlog from days the review didn't run.
+- **needs_review_by_account** (0006): count, total, skipped-before count and oldest date per account; drives the review headline.
 - **allocation_check** (0005): split transactions with allocated vs unallocated amount.
 
 ## Functions
+- **tx_sync_pending()** (0006): trigger function keeping `pending` = (`bank_status` = 'pending').
 - **dashboard_snapshot(p_month date) returns jsonb** (0002): everything the report templates need for one month: `month`, `summary`, `balances`, `snowball`, `income_sources`, `income_events`, `bills` (instances joined to templates), `one_offs` (this month + unpaid older), `budgets`, `transfers`, `transactions` (with matched bill/one-off name), `debts` (with paid to date).
 
 ## How the pieces work

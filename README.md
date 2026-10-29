@@ -35,7 +35,7 @@ Finance connector (Plaid) --daily--> Finance bot --SQL via Supabase connector-->
 Full walkthrough: [ONBOARDING.md](ONBOARDING.md). Short version:
 1. **Create a free Supabase account** at supabase.com and **create one project** (free plan: 500 MB, no automatic backups, pauses after about a week idle; check current pricing for Pro).
 2. **Connect the Supabase connector** in Grok Bot and confirm the bot can list your project.
-3. **Apply the migrations in order** (`supabase/migrations/0001` -> `0005`). Have the bot explain each one and wait for your OK before running it.
+3. **Apply the migrations in order** (`supabase/migrations/0001` -> `0006`). Have the bot explain each one and wait for your OK before running it.
 4. **Load the category template**: `supabase/seed_categories.sql` (edit first if you want).
 5. **Register your bank accounts** (required): one `accounts` row per account; then connect each one through the Finance connector and record its Plaid ids. See ONBOARDING step 5.
 6. **Seed settings**: `settings` rows `snowball` (`{"extra_per_month": 0}`) and `balances` (`{"<account id>": {"available": 0}}`).

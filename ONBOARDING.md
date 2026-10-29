@@ -11,7 +11,7 @@ Go step by step. The bot should explain each step in plain language and wait for
 In Grok Bot, add the Supabase connector and sign in. Ask the bot: *"List my Supabase projects."* Confirm it shows the project you just made. Tell the bot that project is the budget ledger.
 
 ## 3. Apply migrations in order
-Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0005. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
+Ask: *"Apply GrokBudgetTracker migration 0001 to my budget project. Explain it first."* Repeat for 0002 through 0006. Each file is applied as its own migration with the same name. Afterwards ask the bot to run Supabase's security advisor; the only expected notice is "RLS enabled, no policy" (intentional: deny-all).
 
 ## 4. Categories
 Review `supabase/seed_categories.sql`, remove what you don't use, add your own, then ask the bot to run it.
@@ -32,7 +32,7 @@ The bot inserts one `accounts` row per account with `connected = false`.
 
 **5d. Record the Plaid ids.** For each confirmed match the bot updates the row: `plaid_item_id` (the connection), `plaid_account_id`, `connected = true`, `connected_at = now()`, `status = 'active'`. The table enforces that a connected account has both Plaid ids.
 
-**5e. Run a test sync.** Ask: *"Do a test sync of <nickname> for the last 7 days, but don't save anything yet."* The bot pulls transactions through the Finance connector and shows a few rows with dates and amounts so you can compare them to your bank's app. When they match, say "save it": rows go into `transactions` with `account_id`, `source = 'plaid'` and `external_id` (the Plaid transaction id, also kept in `plaid_id`) as the dedupe key, and the bot sets `last_synced_at`.
+**5e. Run a test sync.** Ask: *"Do a test sync of <nickname> for the last 7 days, but don't save anything yet."* The bot pulls transactions through the Finance connector and shows a few rows with dates and amounts so you can compare them to your bank's app. When they match, say "save it": rows go into `transactions` with `account_id`, `source = 'plaid'` and `external_id` (the Plaid transaction id, also kept in `plaid_id`) as the dedupe key, and the bot sets `last_synced_at`. Every imported row starts as `review_status = 'needs_review'`; the bank's pending/posted state is stored separately in `bank_status`.
 
 **5f. Banks that won't connect.** If an institution isn't available or keeps failing:
 - keep the account with `connected = false` and `status = 'disconnected'`;
@@ -50,4 +50,4 @@ If a connection later needs re-login, the bot sets `status = 'needs_reauth'` and
 Copy `templates/config.example.json` to `templates/config.json`, set labels and the bills/spending account ids, then ask: *"Build this month's dashboard and PDFs."*
 
 ## 8. Daily Transaction Review and other routines
-Pick the time you want your **Daily Transaction Review** each morning (for example 7:00 AM). The bot creates a routine from the sample prompt in [docs/routines.md](docs/routines.md). How it works: [docs/workflows.md#daily-transaction-review](docs/workflows.md). Optionally add the month-rollover and month-end report routines from the same file.
+Pick the time you want your **Daily Transaction Review** each morning (for example 7:00 AM). The bot creates a routine from the sample prompt in [docs/routines.md](docs/routines.md). How it works: [docs/workflows.md#daily-transaction-review](docs/workflows.md). The review covers every `needs_review` (and previously skipped) transaction, including backlog from days it didn't run, with a count per account. Optionally add the month-rollover and month-end report routines from the same file.
