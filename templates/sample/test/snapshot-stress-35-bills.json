@@ -1,0 +1,537 @@
+{
+ "month": "2026-01-01",
+ "pulled_at": "2026-01-14",
+ "summary": {
+  "income_expected": 4500,
+  "income_banked": 3000
+ },
+ "balances": {
+  "chk-bills": {
+   "available": 2450.0
+  }
+ },
+ "snowball": {
+  "extra_per_month": 200
+ },
+ "income_sources": [
+  {
+   "id": "client-a",
+   "name": "Client A retainer",
+   "expected_amount": 3000
+  },
+  {
+   "id": "client-b",
+   "name": "Client B retainer",
+   "expected_amount": 1500
+  }
+ ],
+ "income_events": [
+  {
+   "source_id": "client-a",
+   "kind": "income",
+   "amount": 3000,
+   "received_date": "2026-01-02",
+   "notes": "January retainer"
+  }
+ ],
+ "bills": [
+  {
+   "kind": "fixed",
+   "id": "mortgage",
+   "name": "Mortgage",
+   "category": "Housing",
+   "due_date": "2026-01-01",
+   "amount": 1200,
+   "paid_amount": 1200,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "streaming",
+   "name": "Streaming",
+   "category": "Subscriptions",
+   "due_date": "2026-01-05",
+   "amount": 16,
+   "paid_amount": 16,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "electric",
+   "name": "Electric",
+   "category": "Utilities",
+   "due_date": "2026-01-12",
+   "amount": 140,
+   "paid_amount": 140,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "internet",
+   "name": "Internet",
+   "category": "Utilities",
+   "due_date": "2026-01-18",
+   "amount": 70,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "auto-ins",
+   "name": "Auto insurance",
+   "category": "Insurance",
+   "due_date": "2026-01-20",
+   "amount": 110,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": true
+  },
+  {
+   "kind": "fixed",
+   "id": "x0",
+   "name": "Example Water",
+   "category": "Utilities",
+   "due_date": "2026-01-11",
+   "amount": 29.99,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x1",
+   "name": "Example Gas utility",
+   "category": "Utilities",
+   "due_date": "2026-01-13",
+   "amount": 120,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x2",
+   "name": "Example Phone",
+   "category": "Utilities",
+   "due_date": "2026-01-02",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x3",
+   "name": "Example Gym",
+   "category": "Utilities",
+   "due_date": "2026-01-27",
+   "amount": 85,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x4",
+   "name": "Example Cloud storage",
+   "category": "Utilities",
+   "due_date": "2026-01-04",
+   "amount": 45,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x5",
+   "name": "Example Music app",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x6",
+   "name": "Example Car payment",
+   "category": "Utilities",
+   "due_date": "2026-01-30",
+   "amount": 85,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x7",
+   "name": "Example Renters insurance",
+   "category": "Utilities",
+   "due_date": "2026-01-07",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x8",
+   "name": "Example Pet insurance",
+   "category": "Utilities",
+   "due_date": "2026-01-03",
+   "amount": 60,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x9",
+   "name": "Example Trash pickup",
+   "category": "Utilities",
+   "due_date": "2026-01-14",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x10",
+   "name": "Example Student loan",
+   "category": "Utilities",
+   "due_date": "2026-01-08",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x11",
+   "name": "Example Credit card A",
+   "category": "Utilities",
+   "due_date": "2026-01-18",
+   "amount": 60,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x12",
+   "name": "Example Credit card B",
+   "category": "Utilities",
+   "due_date": "2026-01-02",
+   "amount": 250,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x13",
+   "name": "Example Daycare",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x14",
+   "name": "Example Tutoring",
+   "category": "Utilities",
+   "due_date": "2026-01-31",
+   "amount": 29.99,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x15",
+   "name": "Example News sub",
+   "category": "Utilities",
+   "due_date": "2026-01-21",
+   "amount": 120,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x16",
+   "name": "Example Lawn care",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x17",
+   "name": "Example Security system",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 85,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x18",
+   "name": "Example HOA",
+   "category": "Utilities",
+   "due_date": "2026-01-13",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x19",
+   "name": "Example Life insurance",
+   "category": "Utilities",
+   "due_date": "2026-01-08",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x20",
+   "name": "Example Software sub",
+   "category": "Utilities",
+   "due_date": "2026-01-18",
+   "amount": 250,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x21",
+   "name": "Example Parking",
+   "category": "Utilities",
+   "due_date": "2026-01-05",
+   "amount": 45,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x22",
+   "name": "Example Storage unit",
+   "category": "Utilities",
+   "due_date": "2026-01-14",
+   "amount": 29.99,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x23",
+   "name": "Example Charity pledge",
+   "category": "Utilities",
+   "due_date": "2026-01-18",
+   "amount": 15,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x24",
+   "name": "Example Vet plan",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 45,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x25",
+   "name": "Example Magazine",
+   "category": "Utilities",
+   "due_date": "2026-01-18",
+   "amount": 250,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x26",
+   "name": "Example Toll pass",
+   "category": "Utilities",
+   "due_date": "2026-01-22",
+   "amount": 29.99,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x27",
+   "name": "Example Dental plan",
+   "category": "Utilities",
+   "due_date": "2026-01-04",
+   "amount": 85,
+   "paid_amount": null,
+   "status": "cleared",
+   "unverified": false
+  },
+  {
+   "kind": "fixed",
+   "id": "x28",
+   "name": "Example Vision plan",
+   "category": "Utilities",
+   "due_date": "2026-01-19",
+   "amount": 120,
+   "paid_amount": null,
+   "status": "unpaid",
+   "unverified": false
+  }
+ ],
+ "one_offs": [
+  {
+   "id": "dentist-2026-01",
+   "payee": "Example Dental",
+   "amount": 180,
+   "due_date": "2026-01-25",
+   "status": "unpaid",
+   "unverified": false,
+   "carried_over_from": null
+  },
+  {
+   "id": "co",
+   "payee": "Example Plumber",
+   "amount": 95,
+   "due_date": "2025-12-20",
+   "status": "unpaid",
+   "unverified": false,
+   "carried_over_from": "2025-12"
+  }
+ ],
+ "budgets": [
+  {
+   "id": "groceries",
+   "name": "Groceries",
+   "planned": 500,
+   "spent": 310
+  },
+  {
+   "id": "fuel",
+   "name": "Fuel",
+   "planned": 250,
+   "spent": 120
+  },
+  {
+   "id": "dining",
+   "name": "Food (eating out)",
+   "planned": 150,
+   "spent": 95
+  },
+  {
+   "id": "shopping",
+   "name": "Shopping",
+   "planned": 100,
+   "spent": 40
+  }
+ ],
+ "transfers": [
+  {
+   "id": "budget-2026-01",
+   "from_account": "chk-bills",
+   "to_account": "card-spend",
+   "amount": 1000,
+   "planned_amount": 1000,
+   "date": "2026-01-02"
+  }
+ ],
+ "transactions": [
+  {
+   "date": "2026-01-14",
+   "amount": -22.5,
+   "description": "CORNER CAFE",
+   "category": "Food (eating out)",
+   "pending": true,
+   "matched": null
+  },
+  {
+   "date": "2026-01-12",
+   "amount": -140,
+   "description": "EXAMPLE POWER AUTOPAY",
+   "category": "Utilities",
+   "pending": false,
+   "matched": "Electric"
+  },
+  {
+   "date": "2026-01-02",
+   "amount": 3000,
+   "description": "CLIENT A ACH DEPOSIT",
+   "category": "Income",
+   "pending": false,
+   "matched": null
+  },
+  {
+   "date": "2026-01-02",
+   "amount": -1000,
+   "description": "TRANSFER TO SPENDING CARD",
+   "category": "Transfer",
+   "pending": false,
+   "matched": null
+  },
+  {
+   "date": "2026-01-01",
+   "amount": -1200,
+   "description": "EXAMPLE MORTGAGE PMT",
+   "category": "Housing",
+   "pending": false,
+   "matched": "Mortgage"
+  }
+ ],
+ "debts": [
+  {
+   "order": 1,
+   "name": "Store card",
+   "apr": 24.99,
+   "min": 35,
+   "start": 900,
+   "paid": 0
+  },
+  {
+   "order": 2,
+   "name": "Payoff card",
+   "apr": 21.5,
+   "min": 90,
+   "start": 4200,
+   "paid": 0
+  },
+  {
+   "order": 3,
+   "name": "Auto loan",
+   "apr": 6.9,
+   "min": 320,
+   "start": 11000,
+   "paid": 0
+  }
+ ]
+}

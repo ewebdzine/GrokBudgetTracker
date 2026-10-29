@@ -1,5 +1,6 @@
 # Changelog
 ## Unreleased
+- PDF bills timeline made compact: small grey WEEK labels, inline subtotals, 8-8.5pt single-line rows, slim rail; kept on one page (moves whole, two columns above ~44 bills); stress fixture `templates/sample/test/snapshot-stress-35-bills.json`.
 - Bills timeline by week of the month (Week 1 = 1-7, 2 = 8-14, 3 = 15-21, 4 = 22-end). Monthly Budget Plan PDF: the Fixed bills and One-off bills tables are replaced by week headings with subtotals and a dated rail of all bills (FIXED / ONE-OFF label, amount, status) plus an overall total. HTML dashboard weeks match (29-31 fold into week 4, date lead, type tag). Dashboard Page: List / By week toggle; By week shows dated bills with a Fixed / One-off marker.
 
 ## 0.6.0 - 2026-10-29

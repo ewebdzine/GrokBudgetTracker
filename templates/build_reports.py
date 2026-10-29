@@ -217,14 +217,10 @@ class Rail(Flowable):
     def __init__(s,h,top,bot,color): Flowable.__init__(s); s.h=h; s.top=top; s.bot=bot; s.c=color
     def wrap(s,aw,ah): s.w=aw; return aw,s.h
     def draw(s):
-        cv=s.canv; x=s.w/2; y=s.h/2; cv.setStrokeColor(colors.HexColor('#C9C9C9')); cv.setLineWidth(1)
+        cv=s.canv; x=s.w/2; y=s.h/2; cv.setStrokeColor(colors.HexColor('#C9C9C9')); cv.setLineWidth(0.6)
         cv.line(x,0 if not s.bot else y,x,s.h if not s.top else y)
-        cv.setFillColor(s.c); cv.setStrokeColor(colors.white); cv.circle(x,y,3.4,fill=1,stroke=1)
-RH=20
-TL=ParagraphStyle('tl',fontName='Helvetica',fontSize=9.5,leading=12)
-TLD=ParagraphStyle('tld',fontName='Helvetica-Bold',fontSize=9.5,leading=12,alignment=2)
-TLR=ParagraphStyle('tlr',fontName='Helvetica',fontSize=9.5,leading=12,alignment=2)
-WH=ParagraphStyle('wh',parent=H2,spaceBefore=10,spaceAfter=2)
+        cv.setFillColor(s.c); cv.setStrokeColor(colors.white); cv.circle(x,y,2.2,fill=1,stroke=0)
+GREY=colors.HexColor('#777777'); HAIR=colors.HexColor('#D6D6D6')
 OK='#1F6F5C'; WARN='#8A6516'; BAD='#A3341F'
 def tl_status(b,d):
     if b['status']!='unpaid': return ('Cleared' if b['status']=='cleared' else 'Paid'),OK
@@ -233,30 +229,41 @@ def tl_status(b,d):
 wk=defaultdict(list)
 for b in bills: w,d,c=bill_week(b); wk[w].append((d,b['name'],'Fixed',b,c))
 for o in oo: w,d,c=bill_week(o); wk[w].append((d,o['payee'],'One-off',o,c or bool(o.get('carried_over_from'))))
-st.append(Paragraph('Bills timeline',H2))
-st.append(Paragraph('Every bill for the month, fixed and one-off, by the date it comes out. Week 1 = 1st–7th, Week 2 = 8th–14th, Week 3 = 15th–21st, Week 4 = 22nd to month end.',N))
-for w in range(1,5):
+NB=sum(len(v) for v in wk.values())
+TWO=NB>44                       # two columns (weeks 1-2 | 3-4) only when one column can't fit a page
+FS=8 if TWO or NB>30 else 8.5; RH=FS+4.5; HH=FS+7
+def week_table(w,width):
     its=sorted(wk.get(w,[]),key=lambda r:(r[0] or first))
     tot=sum(r[3]['amount'] for r in its); un=sum(r[3]['amount'] for r in its if r[3]['status']=='unpaid')
-    head=Table([[Paragraph(f'Week {w} ({WK[w]})',WH),Paragraph(f'<font color="#666666">{m(tot,True)}' + (f' · {m(un,True)} unpaid' if un else (' · all paid' if its else '')) + '</font>',ParagraphStyle('ws',parent=N,alignment=2))]],colWidths=[4.5*inch,2.5*inch])
-    head.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'BOTTOM'),('LEFTPADDING',(0,0),(-1,-1),6),('RIGHTPADDING',(0,0),(-1,-1),6),('LINEBELOW',(0,0),(-1,0),0.6,colors.HexColor('#999999'))]))
-    if not its:
-        st.append(KeepTogether([head,Paragraph('No bills due this week.',N)])); continue
-    rows=[]
+    subtot=(f'{m(tot,True)}'+(f' · {m(un,True)} unpaid' if un else ' · all paid')) if its else 'no bills'
+    head=f'<font name="Helvetica-Bold" size="{FS-1}" color="#777777">WEEK {w} · {WK[w]}</font>&nbsp;&nbsp;<font size="{FS-1}" color="#999999">{subtot}</font>'
+    rows=[[Paragraph(head,ParagraphStyle('wh',fontName='Helvetica',fontSize=FS-1,leading=FS+1)),'','','','']]
     for k,(d,name,kind,b,carried) in enumerate(its):
         txt,col=tl_status(b,d)
         amt=b.get('paid_amount') if b['status']!='unpaid' and b.get('paid_amount') else b['amount']
-        mark=f'<font name="Helvetica-Bold" size="7" color="#666666">{kind.upper()}</font>'
-        extra=(' <font size="8" color="#A3341F">carried over</font>' if carried else '')+(' *' if b.get('unverified') else '')
-        rows.append([Paragraph(d.strftime('%a %-m/%-d') if d else '—',TLD),Rail(RH,k==0,k==len(its)-1,colors.HexColor(col)),
-                     Paragraph(f'{E(name)}&nbsp;&nbsp;{mark}{extra}',TL),Paragraph(m(amt,True),TLR),Paragraph(f'<font color="{col}"><b>{txt}</b></font>',TLR)])
-    t=Table(rows,colWidths=[0.85*inch,0.3*inch,3.85*inch,1.0*inch,1.0*inch],rowHeights=[RH]*len(rows))
-    t.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0),('LEFTPADDING',(1,0),(1,-1),0),('RIGHTPADDING',(1,0),(1,-1),0),('LINEBELOW',(2,0),(-1,-2),0.3,colors.HexColor('#E4E4E4'))]))
-    st.append(KeepTogether([head,Spacer(1,3),t]))
+        tag=f'<font name="Helvetica-Bold" size="{FS-2.5}" color="#888888">{"FIXED" if kind=="Fixed" else "ONE-OFF"}</font>'
+        extra=(f' <font size="{FS-1.5}" color="#A3341F">carried over</font>' if carried else '')+(' *' if b.get('unverified') else '')
+        rows.append([d.strftime('%a %-m/%-d') if d else '—',Rail(RH,k==0,k==len(its)-1,colors.HexColor(col)),
+                     Paragraph(f'{E(name)}&nbsp;{tag}{extra}',ParagraphStyle('tl',fontName='Helvetica',fontSize=FS,leading=FS+1.5)),m(amt,True),txt])
+    f=width/7.0
+    t=Table(rows,colWidths=[w_*f*inch for w_ in ([0.75,0.2,4.25,0.95,0.85] if not TWO else [0.95,0.25,3.4,1.2,1.2])],rowHeights=[HH]+[RH]*len(its))
+    sty=[('FONT',(0,1),(-1,-1),'Helvetica',FS),('FONT',(0,1),(0,-1),'Helvetica-Bold',FS),('ALIGN',(0,1),(0,-1),'RIGHT'),('ALIGN',(3,1),(4,-1),'RIGHT'),
+         ('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0),('LEFTPADDING',(0,0),(-1,-1),3),('RIGHTPADDING',(0,0),(-1,-1),3),
+         ('LEFTPADDING',(1,0),(1,-1),0),('RIGHTPADDING',(1,0),(1,-1),0),('SPAN',(0,0),(-1,0)),('LINEBELOW',(0,0),(-1,0),0.25,HAIR),('VALIGN',(0,0),(-1,0),'BOTTOM')]
+    for r,(d,_,_,b,_) in enumerate(its,1): sty.append(('TEXTCOLOR',(4,r),(4,r),colors.HexColor(tl_status(b,d)[1])))
+    t.setStyle(TableStyle(sty)); return t
+blk=[Paragraph('Bills timeline',H2),Paragraph(f'All {NB} bills, fixed and one-off, by the date they come out. Week 4 runs from the 22nd to month end.',N),Spacer(1,2)]
+if TWO:
+    L=[week_table(1,3.45),Spacer(1,4),week_table(2,3.45)]; R=[week_table(3,3.45),Spacer(1,4),week_table(4,3.45)]
+    two=Table([[L,R]],colWidths=[3.5*inch,3.5*inch]); two.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),0),('RIGHTPADDING',(0,0),(-1,-1),0)]))
+    blk.append(two)
+else:
+    for w in range(1,5): blk+=[week_table(w,7.0),Spacer(1,3)]
 tt=Table([['Total bills',f'{m(planned_fixed+planned_oo,True)} · {m(bills_left,True)} left to pay']],colWidths=[3.5*inch,3.5*inch])
-tt.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica-Bold',9.5),('ALIGN',(1,0),(1,0),'RIGHT'),('BACKGROUND',(0,0),(-1,-1),hdr),('LINEABOVE',(0,0),(-1,0),0.6,grid)]))
-st.append(Spacer(1,6)); st.append(tt)
-if any(r[3].get('unverified') for v in wk.values() for r in v): st.append(Paragraph('* Not yet confirmed against a bill or bank charge.',N))
+tt.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica-Bold',FS+0.5),('ALIGN',(1,0),(1,0),'RIGHT'),('BACKGROUND',(0,0),(-1,-1),hdr),('TOPPADDING',(0,0),(-1,-1),2),('BOTTOMPADDING',(0,0),(-1,-1),2.5)]))
+blk+=[Spacer(1,3),tt]
+if any(r[3].get('unverified') for v in wk.values() for r in v): blk.append(Paragraph('* Not yet confirmed against a bill or bank charge.',N))
+st.append(KeepTogether(blk))   # whole timeline moves to the next page rather than splitting
 sbody=[[b['name'],m(b['planned']),m(b['spent'])] for b in bud]+[['Total moved to spending account',m(spend_plan),f'moved {m(xfer["amount"])}' if xfer else '']]
 st.append(KeepTogether([Paragraph('Spending budget',H2),table(['Category','Budget','Spent'],sbody,[3.6,1.6,1.8],right=(1,2))]))
 from reportlab.platypus import CondPageBreak
