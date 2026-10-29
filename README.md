@@ -33,7 +33,7 @@ Finance connector (Plaid) --daily--> Finance bot --SQL via Supabase connector-->
 
 ## Setup
 Full walkthrough: [ONBOARDING.md](ONBOARDING.md). Short version:
-1. **Create a free Supabase account** at supabase.com and **create one project** (free plan: 500 MB, no automatic backups, pauses after about a week idle; check current pricing for Pro).
+1. **Create a free Supabase account** at [supabase.com/dashboard/sign-up](https://supabase.com/dashboard/sign-up) and **create one project** (free plan: 500 MB, no automatic backups, pauses after about a week idle; check current pricing for Pro).
 2. **Connect the Supabase connector** in Grok Bot and confirm the bot can list your project.
 3. **Apply the migrations in order** (`supabase/migrations/0001` -> `0006`). Have the bot explain each one and wait for your OK before running it.
 4. **Load the category template**: `supabase/seed_categories.sql` (edit first if you want).
