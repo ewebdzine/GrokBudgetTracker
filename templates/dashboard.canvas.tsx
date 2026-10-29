@@ -25,8 +25,8 @@ const DATA = {
     { name: "Shopping", budget: 100, spent: 40 },
   ],
   review: [
-    { account: "Bills checking (…1111)", items: 2, total: -162.5, earlier: 1, oldest: "1/12" },
-    { account: "Spending card (…2222)", items: 3, total: -61.2, earlier: 0, oldest: "1/13" },
+    { account: "Bills checking (…1111)", items: 2, total: -162.5, skipped: 1, oldest: "1/12" },
+    { account: "Spending card (…2222)", items: 3, total: -61.2, skipped: 0, oldest: "1/13" },
   ],
   debts: [
     { order: 1, name: "Store card", apr: 24.99, min: 35, balance: 900, clears: "Jun 2026" },
@@ -60,6 +60,7 @@ export default function BudgetDashboard() {
       summary={`Sample data only. Status as of ${DATA.asOf}. Grok refreshes this Page each month; the PDFs are the printable version.`}
       width="wide"
     >
+      <Text>{leftOver < 0 ? `Planned spending is ${money(-leftOver)} more than the income received so far.` : `After bills and bucket budgets, ${money(leftOver)} of the income received so far is left over.`}</Text>
       <Metrics
         metrics={[
           { value: money(incRec), label: "Income received", detail: `of ${money(incExp)} expected` },
@@ -82,7 +83,7 @@ export default function BudgetDashboard() {
             align={["start", "start", "start", "end", "start"]}
             rows={shownBills.map((b) => [
               b.name,
-              `${b.kind}: ${b.category}`,
+              b.category ? `${b.kind}: ${b.category}` : b.kind,
               b.due,
               money(b.amount),
               b.status === "unpaid" ? { text: `Due ${b.due}`, tone: "warning" } : { text: b.status === "cleared" ? "Cleared" : "Paid", tone: "success" },
@@ -94,7 +95,7 @@ export default function BudgetDashboard() {
           <Segmented value={spendView} onChange={setSpendView} options={[{ value: "buckets", label: "Buckets" }, { value: "income", label: "Income" }]} />
         }>
           {spendView === "buckets" ? (
-            <Bars bars={DATA.buckets.map((b) => ({ label: b.name, value: Math.round((100 * b.spent) / b.budget), display: `${money(b.spent)} of ${money(b.budget)}`, meta: b.spent > b.budget ? `${money(b.spent - b.budget)} over` : `${money(b.budget - b.spent)} left` }))} emphasis="none" />
+            <Bars bars={DATA.buckets.map((b) => ({ label: b.name, value: b.budget > 0 ? Math.round((100 * b.spent) / b.budget) : 0, display: `${money(b.spent)} of ${money(b.budget)}`, meta: b.spent > b.budget ? `${money(b.spent - b.budget)} over` : `${money(b.budget - b.spent)} left` }))} emphasis="none" />
           ) : (
             <Table
               columns={["Source", "Frequency", "Expected", "Received", "Status"]}
@@ -112,7 +113,7 @@ export default function BudgetDashboard() {
         <Section heading="Needs review" caption={`${reviewCount} transactions waiting for the Daily Transaction Review`}>
           <Rows rows={DATA.review.map((r) => ({
             title: r.account,
-            detail: `${r.items} transactions · ${money(r.total)}${r.earlier ? ` · ${r.earlier} from earlier days` : ""}`,
+            detail: `${r.items} transactions · ${money(r.total)}${r.skipped ? ` · ${r.skipped} skipped earlier` : ""}`,
             meta: `oldest ${r.oldest}`,
             status: { label: `${r.items} to review`, tone: "warning" },
           }))} />
