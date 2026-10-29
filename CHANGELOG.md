@@ -1,4 +1,7 @@
 # Changelog
+## Unreleased
+- Bills by week of the month (Week 1 = 1-7, 2 = 8-14, 3 = 15-21, 4 = 22-end): List / By week toggle on the dashboard Page with week totals and unpaid amounts; new Bills by week table with week subtotals in the Monthly Budget Plan PDF; HTML dashboard weeks now fold 29-31 into week 4.
+
 ## 0.6.0 - 2026-10-29
 - 0008 documents: private Storage bucket `bill-documents` and `documents` table (sha256 dedupe, doc_type, one link to a one-off, bill, transaction or income row, ocr_text), deny-all RLS.
 - Optional Edge Function `supabase/functions/bill-documents` for uploads and signed URLs (the Supabase connector has no Storage upload tool).

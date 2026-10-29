@@ -2,7 +2,7 @@
 
 | File | Output |
 |---|---|
-| `build_reports.py` | From a `dashboard_snapshot` JSON: `YYYY-MM.html` dashboard, `YYYY-MM-budget-plan.pdf`, `YYYY-MM-where-the-money-went.pdf`; prints a JSON summary (bills left, snowball months, etc.) |
+| `build_reports.py` | From a `dashboard_snapshot` JSON: `YYYY-MM.html` dashboard, `YYYY-MM-budget-plan.pdf`, `YYYY-MM-where-the-money-went.pdf`; the Budget Plan PDF includes a **Bills by week** table (Week 1 = 1-7, 2 = 8-14, 3 = 15-21, 4 = 22-end) with week totals and unpaid amounts; prints a JSON summary (bills left, snowball months, etc.) |
 | `build_blank.py` | Blank fill-in versions: `monthly-budget-plan-blank.pdf`, `where-the-money-went-blank.pdf` |
 | `config.example.json` | Labels, account ids, colors, bill grouping, keyword rules, blank-template rows |
 | `sample/snapshot-2026-01.json` | Fake snapshot |

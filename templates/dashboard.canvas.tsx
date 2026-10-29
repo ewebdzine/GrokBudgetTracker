@@ -41,6 +41,7 @@ const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
 export default function BudgetDashboard() {
   const [billView, setBillView] = useState<"all" | "unpaid" | "paid">("all");
+  const [billLayout, setBillLayout] = useState<"list" | "week">("list");
   const [spendView, setSpendView] = useState<"buckets" | "income">("buckets");
 
   const incExp = sum(DATA.income.map((i) => i.expected));
@@ -53,6 +54,21 @@ export default function BudgetDashboard() {
   const leftOver = incRec - billsTotal - budget;
   const reviewCount = sum(DATA.review.map((r) => r.items));
   const shownBills = billView === "all" ? DATA.bills : billView === "paid" ? paid : unpaid;
+  // Week of the month from the M/D due date: 1-7, 8-14, 15-21, 22-end (29-31 fold into week 4).
+  const weekOf = (due: string) => Math.min(4, Math.floor((Number(due.split("/")[1]) - 1) / 7) + 1);
+  const WEEKS = [
+    { n: 1, range: "1st–7th" },
+    { n: 2, range: "8th–14th" },
+    { n: 3, range: "15th–21st" },
+    { n: 4, range: "22nd–end" },
+  ];
+  const billRow = (b: (typeof DATA.bills)[number]) => [
+    b.name,
+    b.category ? `${b.kind}: ${b.category}` : b.kind,
+    b.due,
+    money(b.amount),
+    b.status === "unpaid" ? { text: `Due ${b.due}`, tone: "warning" as const } : { text: b.status === "cleared" ? "Cleared" : "Paid", tone: "success" as const },
+  ];
 
   return (
     <Page
@@ -72,23 +88,44 @@ export default function BudgetDashboard() {
 
       <Grid columns={2}>
         <Section heading="Bills" caption={`${DATA.bills.length} this month · ${money(billsTotal)} planned`} actions={
-          <Segmented value={billView} onChange={setBillView} options={[
-            { value: "all", label: "All", count: DATA.bills.length },
-            { value: "unpaid", label: "Unpaid", count: unpaid.length },
-            { value: "paid", label: "Paid", count: paid.length },
-          ]} />
+          <>
+            <Segmented value={billLayout} onChange={setBillLayout} options={[
+              { value: "list", label: "List" },
+              { value: "week", label: "By week" },
+            ]} />
+            <Segmented value={billView} onChange={setBillView} options={[
+              { value: "all", label: "All", count: DATA.bills.length },
+              { value: "unpaid", label: "Unpaid", count: unpaid.length },
+              { value: "paid", label: "Paid", count: paid.length },
+            ]} />
+          </>
         }>
-          <Table
-            columns={["Bill", "Type", "Due", "Amount", "Status"]}
-            align={["start", "start", "start", "end", "start"]}
-            rows={shownBills.map((b) => [
-              b.name,
-              b.category ? `${b.kind}: ${b.category}` : b.kind,
-              b.due,
-              money(b.amount),
-              b.status === "unpaid" ? { text: `Due ${b.due}`, tone: "warning" } : { text: b.status === "cleared" ? "Cleared" : "Paid", tone: "success" },
-            ])}
-          />
+          {billLayout === "list" ? (
+            <Table
+              columns={["Bill", "Type", "Due", "Amount", "Status"]}
+              align={["start", "start", "start", "end", "start"]}
+              rows={shownBills.map(billRow)}
+            />
+          ) : (
+            WEEKS.map((w) => {
+              const all = DATA.bills.filter((b) => weekOf(b.due) === w.n);
+              const shown = shownBills.filter((b) => weekOf(b.due) === w.n);
+              const due = sum(all.filter((b) => b.status === "unpaid").map((b) => b.amount));
+              return (
+                <Section key={w.n} heading={`Week ${w.n} · ${w.range}`} caption={`${money(sum(all.map((b) => b.amount)))} total · ${due ? `${money(due)} unpaid` : "all paid"}`}>
+                  {shown.length ? (
+                    <Table
+                      columns={["Bill", "Type", "Due", "Amount", "Status"]}
+                      align={["start", "start", "start", "end", "start"]}
+                      rows={shown.map(billRow)}
+                    />
+                  ) : (
+                    <Text>{all.length ? "No bills match this filter." : "No bills due this week."}</Text>
+                  )}
+                </Section>
+              );
+            })
+          )}
         </Section>
 
         <Section heading={spendView === "buckets" ? "Budget buckets" : "Income"} caption={spendView === "buckets" ? `${money(spent)} of ${money(budget)} spent` : `${money(incRec)} of ${money(incExp)} received`} actions={

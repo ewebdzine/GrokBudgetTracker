@@ -72,8 +72,8 @@ debt_free=addm(SB['months']); owed=sum(d['start']-d['paid'] for d in debts)
 # ---------- HTML ----------
 E=html.escape
 def chip(txt,kind): return f'<span class="chip {kind}">{E(txt)}</span>'
-def week_of(d): return min((d.day-1)//7+1,5) if d else 1
-WK={1:'1st–7th',2:'8th–14th',3:'15th–21st',4:'22nd–28th',5:'29th–31st'}
+def week_of(d): return min((d.day-1)//7+1,4) if d else 1  # 1-7, 8-14, 15-21, 22-end (29-31 fold into week 4)
+WK={1:'1st–7th',2:'8th–14th',3:'15th–21st',4:'22nd–end'}
 rows=defaultdict(list)
 for b in bills: rows[week_of(D(b['due_date']))].append(('fixed',b))
 for o in oo: rows[1 if o.get('carried_over_from') else week_of(D(o['due_date']))].append(('oneoff',o))
@@ -211,9 +211,25 @@ st.append(Paragraph('* Not yet confirmed against a bill or bank charge.',N))
 ob=[[o['payee']+(' (carried over)' if o.get('carried_over_from') else '')+(' *' if o['unverified'] else ''),D(o['due_date']).strftime('%-m/%-d'),m(o['amount'],True),CHK(o['status']!='unpaid')] for o in oo]
 ob.append(['Total one-offs','',m(planned_oo,True),f'{m(oo_left_amt,True)} left'])
 st.append(KeepTogether([Paragraph('One-off bills',H2),table(['Bill','Due','Amount','Paid'],ob,[4.3,0.7,1.1,0.9],right=(2,),center=(1,3))]))
-st.append(Paragraph('Spending budget',H2))
+# Bills by week of the month (fixed + one-offs; carried-over one-offs count in week 1, like the HTML)
+def weekly_bills():
+    wk=defaultdict(list)
+    for b in bills: wk[week_of(D(b['due_date']))].append((b['name'],b))
+    for o in oo: wk[1 if o.get('carried_over_from') else week_of(D(o['due_date']))].append((o['payee']+(' (carried over)' if o.get('carried_over_from') else ''),o))
+    body=[];grp=[]
+    for w in range(1,5):
+        its=sorted(wk.get(w,[]),key=lambda r:r[1]['due_date'])
+        tot=sum(b['amount'] for _,b in its); un=sum(b['amount'] for _,b in its if b['status']=='unpaid')
+        grp.append(len(body)+1); body.append([f'Week {w} ({WK[w]}) · {m(tot,True)} total · {m(un,True)} unpaid' if its else f'Week {w} ({WK[w]}) · no bills due','','',''])
+        for n,b in its: body.append([n+(' *' if b.get('unverified') else ''),D(b['due_date']).strftime('%-m/%-d'),m(b['amount'],True),CHK(b['status']!='unpaid')])
+    body.append(['Total bills','',m(planned_fixed+planned_oo,True),f'{m(bills_left,True)} left'])
+    return body,grp
+st.append(Paragraph('Bills by week',H2))
+wb,wg=weekly_bills()
+st.append(table(['Bill','Due','Amount','Paid'],wb,[4.3,0.7,1.1,0.9],right=(2,),center=(1,3),groups=wg))
+st.append(Paragraph('Week 1 = 1st–7th, Week 2 = 8th–14th, Week 3 = 15th–21st, Week 4 = 22nd to month end. Includes fixed and one-off bills.',N))
 sbody=[[b['name'],m(b['planned']),m(b['spent'])] for b in bud]+[['Total moved to spending account',m(spend_plan),f'moved {m(xfer["amount"])}' if xfer else '']]
-st.append(KeepTogether(table(['Category','Budget','Spent'],sbody,[3.6,1.6,1.8],right=(1,2))))
+st.append(KeepTogether([Paragraph('Spending budget',H2),table(['Category','Budget','Spent'],sbody,[3.6,1.6,1.8],right=(1,2))]))
 st.append(Paragraph('Month at a glance',H2))
 g=[['Income expected',m(inc_exp)],['All income in (regular + one-off + transfers)',m(inc_bank+other_in,True)],['Planned expenses (fixed + one-offs + spending budget)',m(planned_exp,True)],['Able to save',m(able_to_save,True)],['Bills left to pay',f'{m(bills_left,True)}  ({m(fixed_left_amt,True)} fixed + {m(oo_left_amt,True)} one-off)'],
    ['Bills account available now',m(bal,True)],['Pending (in and out)',m(pending,True)],['Left in bills account after all bills',m(left_after,True)],['Left if unpaid one-offs are not owed',m(left_after_fixed_only,True)]]
