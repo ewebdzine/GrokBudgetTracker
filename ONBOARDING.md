@@ -3,7 +3,7 @@
 Go step by step. The bot should explain each step in plain language and wait for your OK before it changes anything.
 
 ## 1. Supabase account and project
-1. Sign up at supabase.com (free plan is fine to start).
+1. Sign up at [supabase.com/dashboard/sign-up](https://supabase.com/dashboard/sign-up) (free plan is fine to start). You don't need a new username and password: Supabase lets you sign up with an account you already have. Choose **Continue with GitHub** or **Continue with ChatGPT**, or **Continue with SSO** if your company uses single sign-on. Supabase doesn't offer Google sign-in, so if you have neither account, use the email and password form.
 2. Create one project. Pick a region near you and save the database password in your password manager (the bot does not need it).
 3. Free-plan caveats: no automatic backups, projects pause after about a week with no activity, two active free projects per account. Consider Pro if you rely on it daily (check Supabase's current pricing).
 
