@@ -132,7 +132,7 @@ CSS='''body{margin:0;background:#f6f6f3;font:14px/1.45 -apple-system,"Segoe UI",
 .row.paid .nm{color:#7a827e}.ck{width:17px;height:17px;border:1.5px solid #c5cac6;border-radius:4px;display:grid;place-items:center;font-size:11px;color:#fff;flex:none}.ck.on{background:#1f6f5c;border-color:#1f6f5c}
 .nm{flex:1;font-weight:600}.sub{font-weight:400;font-size:11.5px;color:#8a918d}.amt{width:110px;text-align:right;font:700 13.5px Menlo,monospace}
 .chip{font-size:11px;padding:2px 9px;border-radius:10px;white-space:nowrap}.chip.ok{background:#dcefe8;color:#1f6f5c}.chip.bad{background:#fbe2dd;color:#a3341f}.chip.warn{background:#fbf0d8;color:#8a6516}
-.tag{font:600 9.5px Menlo,monospace;letter-spacing:.8px;background:#e3ece8;color:#1f6f5c;border-radius:4px;padding:1px 5px}.tag.oo{background:#efe6f6;color:#6b3fa0}.dt{font-weight:700;min-width:64px;font-variant-numeric:tabular-nums}.tag.dark{background:#1f6f5c;color:#fff}
+.tag{font:600 9.5px Menlo,monospace;letter-spacing:.8px;background:#e3ece8;color:#1f6f5c;border-radius:4px;padding:1px 5px}.tag.oo{background:#efe6f6;color:#6b3fa0}.dt{font-weight:400;color:#555;min-width:64px;font-variant-numeric:tabular-nums}.tag.dark{background:#1f6f5c;color:#fff}
 .wk{padding:9px 18px;background:#f3f5f3;border-top:1px solid #e6e8e5;font-size:11px;letter-spacing:1px;display:flex;gap:8px;align-items:center}.gold{color:#9a6b12;font:600 12px Menlo,monospace}
 .brow{display:flex;align-items:center;gap:14px;padding:10px 18px;border-top:1px solid #f0f1ef}.bn{width:130px;font-weight:600}.bar{flex:1;height:6px;background:#e3e7e4;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:#1f6f5c}
 table{width:100%;border-collapse:collapse;font-size:12.5px}td{padding:6px 18px;border-top:1px solid #f0f1ef}td:last-child{text-align:right;white-space:nowrap}tr.pend td{background:#fffaf0}.pos{color:#1f6f5c}
@@ -247,7 +247,7 @@ def week_table(w,width):
                      Paragraph(f'{E(name)}&nbsp;{tag}{extra}',ParagraphStyle('tl',fontName='Helvetica',fontSize=FS,leading=FS+1.5)),m(amt,True),txt])
     f=width/7.0
     t=Table(rows,colWidths=[w_*f*inch for w_ in ([0.75,0.2,4.25,0.95,0.85] if not TWO else [0.95,0.25,3.4,1.2,1.2])],rowHeights=[HH]+[RH]*len(its))
-    sty=[('FONT',(0,1),(-1,-1),'Helvetica',FS),('FONT',(0,1),(0,-1),'Helvetica-Bold',FS),('ALIGN',(0,1),(0,-1),'RIGHT'),('ALIGN',(3,1),(4,-1),'RIGHT'),
+    sty=[('FONT',(0,1),(-1,-1),'Helvetica',FS),('FONT',(0,1),(0,-1),'Helvetica',FS),('TEXTCOLOR',(0,1),(0,-1),colors.HexColor('#555555')),('ALIGN',(0,1),(0,-1),'RIGHT'),('ALIGN',(3,1),(4,-1),'RIGHT'),
          ('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0),('LEFTPADDING',(0,0),(-1,-1),3),('RIGHTPADDING',(0,0),(-1,-1),3),
          ('LEFTPADDING',(1,0),(1,-1),0),('RIGHTPADDING',(1,0),(1,-1),0),('SPAN',(0,0),(-1,0)),('LINEBELOW',(0,0),(-1,0),0.25,HAIR),('VALIGN',(0,0),(-1,0),'BOTTOM')]
     for r,(d,_,_,b,_) in enumerate(its,1): sty.append(('TEXTCOLOR',(4,r),(4,r),colors.HexColor(tl_status(b,d)[1])))
