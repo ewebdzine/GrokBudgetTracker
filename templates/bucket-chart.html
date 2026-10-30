@@ -1,0 +1,149 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Budget buckets</title>
+<!-- GrokBudgetTracker bucket chart template. Driven by JSON in #data (or window.BUCKET_DATA). Views: ?view=summary (default, all buckets) | single&bucket=<name> (one bucket). Optional: card (wide), pails (drawn buckets), buckets.
+     Data: {"month","title","subtitle","buckets":[{"name","planned","spent","recent":[[description, amount, "YYYY-MM-DD"]]}]} from templates/bucket_chart.sql
+     Style: white Grok theme, purple #8350f2 blob accent, rounded cards, spent-vs-planned bars; amber = 90%+ used, red = over budget. Example data only. -->
+<style>
+  :root { --p: #8350f2; --pl: #ede8fc; --text: #0d0d0f; --muted: #71717a; --line: #ececef; --amber: #d97706; --red: #dc2626; --green: #15803d; }
+  * { box-sizing: border-box; } body { margin: 0; background: #fbfbfc; font: 16px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); }
+  .wrap { padding: 40px; display: inline-block; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 2px 6px #0000000a, 0 18px 44px #00000012; padding: 28px 30px; width: 640px; }
+  .hd { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; } .hd h1 { font-size: 24px; margin: 0; } .hd small { display: block; color: var(--muted); font-size: 14px; }
+  .blob { flex: none; }
+  .row { padding: 12px 0; border-top: 1px solid #f3f3f5; } .row:first-of-type { border-top: none; }
+  .rt { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; } .rt b { font-size: 17px; } .rt span { color: var(--muted); font-size: 15px; }
+  .rt .amt { color: var(--text); font-weight: 700; }
+  .bar { position: relative; height: 12px; background: #f1eefb; border-radius: 99px; margin-top: 8px; overflow: hidden; }
+  .bar u { position: absolute; inset: 0 auto 0 0; background: var(--p); border-radius: 99px; }
+  .bar.near u { background: var(--amber); } .bar.over u { background: var(--red); }
+  .left { font-size: 13.5px; margin-top: 6px; color: var(--muted); } .left.near { color: var(--amber); } .left.over { color: var(--red); font-weight: 700; }
+  .tot { display: flex; justify-content: space-between; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 14px; font-size: 17px; } .tot b.ok { color: var(--green); }
+  /* literal buckets */
+  .bks { display: flex; gap: 26px; justify-content: center; padding: 6px 4px 0; }
+  .bk { width: 150px; text-align: center; }
+  .bk svg { display: block; margin: 0 auto; overflow: visible; }
+  .bk .n { font-weight: 700; margin-top: 8px; } .bk .a { font-size: 14px; color: var(--muted); } .bk .a b { color: var(--text); } .bk .s { font-size: 13px; margin-top: 2px; }
+  .s.near { color: var(--amber); } .s.over { color: var(--red); font-weight: 700; } .s.ok { color: var(--p); }
+  /* single */
+  .single { width: 420px; } .big { font-size: 44px; font-weight: 800; margin: 4px 0 2px; } .big small { font-size: 18px; color: var(--muted); font-weight: 600; }
+  .single .bar { height: 16px; } .mini { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; margin-top: 10px; }
+  .tx { display: flex; justify-content: space-between; font-size: 14.5px; padding: 7px 0; border-top: 1px solid #f3f3f5; }
+  /* mobile */
+  .mobile .card { width: 360px; padding: 20px; border-radius: 20px; } .mobile .wrap { padding: 16px; }
+  .mobile .hd h1 { font-size: 20px; } .mobile .rt b { font-size: 15.5px; } .mobile .rt span { font-size: 13.5px; }
+  /* pails: headline literal-bucket view */
+  .pails { display: flex; gap: 34px; justify-content: center; padding: 30px 6px 4px; }
+  .pail { width: 190px; text-align: center; }
+  .pail svg { display: block; margin: 0 auto; overflow: visible; }
+  .pail .n { font-weight: 800; font-size: 19px; margin-top: 10px; } .pail .a { font-size: 15px; color: var(--muted); margin-top: 2px; } .pail .a b { color: var(--text); }
+  .pail .s { font-size: 14.5px; margin-top: 3px; font-weight: 600; } .pail .s.ok { color: var(--p); } .pail .s.near { color: var(--amber); } .pail .s.over { color: var(--amber); font-weight: 800; }
+  .big.over { color: var(--red); } .big.near { color: var(--amber); } .tx .dt { color: var(--muted); font-size: 12.5px; margin-left: 6px; }
+  .tl { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .tl-h { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #8a8a93; font-weight: 600; margin-bottom: 4px; }
+  .tl-d { font-size: 13px; color: #555; font-weight: 400; margin: 10px 0 2px; }
+  .tl-r { display: flex; justify-content: space-between; gap: 12px; font-size: 15.5px; padding: 5px 0 5px 12px; border-left: 3px solid #e4dcfb; }
+  .tl-r span { font-weight: 600; color: var(--text); } .tl-r b { font-weight: 600; }
+  .tl-empty { color: var(--muted); margin-top: 14px; }
+  .barw { position: relative; margin-top: 8px; } .barw .bar { margin-top: 0; }
+  .barw.over { padding-right: 0; }
+  .bar u.in { background: var(--p); border-radius: 99px 0 0 99px; }
+  .bar u.ov { position: absolute; top: 0; bottom: 0; border-radius: 0 99px 99px 0;
+    background: repeating-linear-gradient(-45deg, #dc2626 0 6px, #f87171 6px 11px); }
+  .lim { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1.5px; background: #0d0d0f; border-radius: 2px; }
+  .otag { position: absolute; top: 50%; transform: translate(6px, -50%); font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    color: #fff; background: var(--red); border-radius: 6px; padding: 2px 6px; line-height: 1.2; }
+  .barw.over .otag { right: 0; transform: translateY(-50%); }
+  .barw.over .bar { background: #fde8e8; }
+</style></head>
+<body style="background:transparent">
+<script type="application/json" id="data">
+/*BUCKET_DATA*/
+</script>
+<div id="root"></div>
+<script>
+const D = window.BUCKET_DATA || JSON.parse(document.getElementById("data").textContent);
+const q = new URLSearchParams(location.search), view = q.get("view") || "summary";
+const $ = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const st = (b) => b.spent > b.planned ? "over" : b.spent >= 0.9 * b.planned ? "near" : "ok";
+const leftTxt = (b) => b.spent > b.planned ? `${$(+(b.spent - b.planned).toFixed(2))} over` : `${$(+(b.planned - b.spent).toFixed(2))} left`;
+const blob = (s = 40) => `<svg class="blob" width="${s}" height="${s}" viewBox="0 0 100 100"><path d="M50 6 C74 4 94 18 95 46 C96 74 80 95 52 95 C24 96 5 80 5 52 C4 22 24 8 50 6 Z" fill="#8350f2"/><ellipse cx="38" cy="28" rx="20" ry="10" fill="#fff" opacity=".12" transform="rotate(-20 38 28)"/><ellipse cx="46" cy="38" rx="5.2" ry="8.5" fill="#fff"/><ellipse cx="64" cy="38" rx="5.2" ry="8.5" fill="#fff"/></svg>`;
+const head = (t, s) => `<div class="hd">${blob()}<div><h1>${t}</h1><small>${s}</small></div></div>`;
+// Spent-vs-planned bar. Over budget: the track is rescaled so the planned limit sits at 75% of the width, the part
+// within the limit keeps the normal color, the overflow past the limit marker is red with diagonal stripes, and an
+// "Over" tag sits at the end. Near the limit (90%+) the fill is amber and the limit marker shows at the end.
+const LIMIT_AT = 75;
+const bar = (b) => {
+  const s = st(b), r = b.spent / b.planned;
+  if (s !== "over") return `<div class="barw"><div class="bar ${s}"><u style="width:${Math.min(100, 100 * r)}%"></u></div>${s === "near" ? `<i class="lim" style="left:100%"></i>` : ""}</div>`;
+  const end = Math.min(86, Math.max(LIMIT_AT + 9, LIMIT_AT * r));  // overflow always visible, leaves room for the tag
+  return `<div class="barw over"><div class="bar"><u class="in" style="width:${LIMIT_AT}%"></u><u class="ov" style="left:${LIMIT_AT}%;width:${end - LIMIT_AT}%"></u></div>
+    <i class="lim" style="left:${LIMIT_AT}%"></i><span class="otag">Over</span></div>`;
+};
+function card() {
+  const P = D.buckets.reduce((a, b) => a + b.planned, 0), S = D.buckets.reduce((a, b) => a + b.spent, 0);
+  return `<div class="card">${head(D.title, D.subtitle)}${D.buckets.map((b) => `<div class="row"><div class="rt"><b>${b.name}</b><span><span class="amt">${$(b.spent)}</span> of ${$(b.planned)}</span></div>${bar(b)}<div class="left ${st(b)}">${leftTxt(b)}</div></div>`).join("")}
+    <div class="tot"><span>Spent ${$(+S.toFixed(2))} of ${$(P)}</span><b class="${S <= P ? "ok" : ""}">${$(+(P - S).toFixed(2))} left</b></div></div>`;
+}
+function bucketSvg(b) { // literal bucket, fill level = spent / planned; overflow drips over the rim when over budget
+  const f = Math.min(1, b.spent / b.planned), s = st(b), col = s === "over" ? "#dc2626" : s === "near" ? "#d97706" : "#8350f2";
+  const top = 30, bot = 150, y = bot - f * (bot - top), xl = (y) => 14 + (y - top) * 0.12, xr = (y) => 136 - (y - top) * 0.12;
+  return `<svg width="150" height="170" viewBox="0 0 150 170">
+    <path d="M14 30 L136 30 L121.6 150 Q75 162 28.4 150 Z" fill="#f3f0fd" stroke="#b9a8ef" stroke-width="4"/>
+    <path d="M${xl(y)} ${y} L${xr(y)} ${y} L121.6 150 Q75 162 28.4 150 Z" fill="${col}" opacity=".85"/>
+    ${s === "over" ? `<path d="M118 30 q8 14 2 30" stroke="${col}" stroke-width="7" stroke-linecap="round" fill="none"/>` : ""}
+    <ellipse cx="75" cy="30" rx="61" ry="11" fill="none" stroke="#b9a8ef" stroke-width="4"/>
+    <text x="75" y="${Math.max(60, y + 34)}" text-anchor="middle" font-size="20" font-weight="800" fill="${f > .45 ? "#fff" : "#8350f2"}">${Math.round(100 * b.spent / b.planned)}%</text></svg>`;
+}
+function buckets() {
+  return `<div class="card" style="width:760px">${head(D.month + " buckets", "How full each bucket is · example data")}<div class="bks">${D.buckets.map((b) =>
+    `<div class="bk">${bucketSvg(b)}<div class="n">${b.name}</div><div class="a"><b>${$(b.spent)}</b> of ${$(b.planned)}</div><div class="s ${st(b)}">${leftTxt(b)}</div></div>`).join("")}</div></div>`;
+}
+// Every expense in the bucket for the month, grouped under small grey date headings (like the bills timeline).
+function timeline(rows) {
+  if (!rows.length) return `<div class="tl-empty">No spending in this bucket yet.</div>`;
+  const by = {}; rows.forEach((r) => (by[r[2] || ""] = by[r[2] || ""] || []).push(r));
+  const fmt = (d) => d ? new Date(d + "T12:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : "Undated";
+  return `<div class="tl"><div class="tl-h">All ${D.month || ""} spending · ${rows.length} expense${rows.length === 1 ? "" : "s"}</div>${Object.keys(by).sort().map((d) =>
+    `<div class="tl-d">${fmt(d)}</div>${by[d].map(([n, a]) => `<div class="tl-r"><span>${n}</span><b>−${$(a)}</b></div>`).join("")}`).join("")}</div>`;
+}
+function single() {
+  const b = D.buckets.find((x) => x.name.toLowerCase() === (q.get("bucket") || "Groceries").toLowerCase()) || D.buckets[0];
+  return `<div class="card single">${head(b.name + " bucket", D.month + " · example data")}<div class="big ${st(b)}">${$(+Math.abs(b.planned - b.spent).toFixed(2))} <small>${b.spent > b.planned ? "over" : "left of"} ${b.spent > b.planned ? "the " + $(b.planned) + " plan" : $(b.planned)}</small></div>
+    ${bar(b)}<div class="mini"><span>${$(b.spent)} spent</span><span>${Math.round(100 * b.spent / b.planned)}% used</span></div>
+    ${timeline(b.expenses || b.recent || [])}</div></div>`;
+}
+function pailSvg(b, peek) {
+  // Bucket like the video's bucket scene: rim ellipse, tapered body, wire handle. Fill = spent / planned.
+  // Over budget: fills to the rim in amber and spills over the side into a little puddle.
+  const r = b.spent / b.planned, over = r > 1, f = Math.min(1, r);
+  const T = 70, B = 214, L = 20, R = 170, inset = 18;                       // rim y, base y, rim x span, taper at base
+  const xl = (y) => L + inset * (y - T) / (B - T), xr = (y) => R - inset * (y - T) / (B - T);
+  const y = B - f * (B - T - 4), fill = over ? "#f59e0b" : "#8350f2", deep = over ? "#d97706" : "#6d3fe0";
+  const blob = peek ? `<g class="peek" transform="translate(56 6)">
+      <path d="M39 4 C58 2 74 13 75 35 C76 56 63 73 41 73 C19 74 4 62 4 41 C3 17 19 6 39 4 Z" fill="#8350f2"/>
+      <ellipse cx="30" cy="22" rx="15" ry="8" fill="#fff" opacity=".14" transform="rotate(-20 30 22)"/>
+      <ellipse cx="34" cy="40" rx="4.3" ry="7" fill="#fff"/><ellipse cx="48" cy="40" rx="4.3" ry="7" fill="#fff"/></g>` : "";
+  return `<svg width="190" height="250" viewBox="0 0 190 250">
+    <path d="M28 ${T - 2} Q95 -6 162 ${T - 2}" fill="none" stroke="#c9bdf3" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="95" cy="${T}" rx="${(R - L) / 2}" ry="15" fill="#e4dcfb"/>
+    ${blob}
+    <path d="M${L} ${T} L${R} ${T} L${R - inset} ${B} Q95 ${B + 14} ${L + inset} ${B} Z" fill="#f4f1fe"/>
+    <path d="M${xl(y)} ${y} L${xr(y)} ${y} L${R - inset} ${B} Q95 ${B + 14} ${L + inset} ${B} Z" fill="${fill}"/>
+    <ellipse cx="95" cy="${y}" rx="${(xr(y) - xl(y)) / 2}" ry="${over ? 15 : 11}" fill="${deep}" opacity=".55"/>
+    ${over ? `<path d="M${R - 6} ${T - 2} C${R + 10} ${T + 6} ${R + 4} ${T + 40} ${R + 12} ${T + 80} C${R + 16} ${T + 110} ${R + 6} ${B - 6} ${R + 10} ${B + 12}" fill="none" stroke="#f59e0b" stroke-width="12" stroke-linecap="round"/>
+      <ellipse cx="${R + 8}" cy="${B + 18}" rx="26" ry="7" fill="#f59e0b" opacity=".9"/><circle cx="${R + 22}" cy="${T + 54}" r="5" fill="#f59e0b"/>` : ""}
+    <path d="M${L} ${T} L${R - inset} ${B} M${R} ${T} L${L + inset} ${B}" stroke="none"/>
+    <path d="M${L} ${T} L${L + inset} ${B} Q95 ${B + 14} ${R - inset} ${B} L${R} ${T}" fill="none" stroke="#b9a8ef" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M${L + 2} ${T} A${(R - L) / 2 - 2} 15 0 0 0 ${R - 2} ${T}" fill="none" stroke="#b9a8ef" stroke-width="5"/>
+    ${peek ? "" : `<path d="M${L + 2} ${T} A${(R - L) / 2 - 2} 15 0 0 1 ${R - 2} ${T}" fill="none" stroke="#b9a8ef" stroke-width="5"/>`}
+    <text x="95" y="${Math.min(B - 14, Math.max(T + 44, y + 40))}" text-anchor="middle" font-size="26" font-weight="800" fill="${f > .3 ? "#fff" : "#8350f2"}">${Math.round(100 * r)}%</text></svg>`;
+}
+function pails() {
+  const peekAt = D.peek || D.buckets[0].name;
+  return `<div class="card" style="width:960px">${head(D.month + " buckets", "How full each bucket is · example data")}<div class="pails">${D.buckets.map((b) =>
+    `<div class="pail">${pailSvg(b, b.name === peekAt)}<div class="n">${b.name}</div><div class="a"><b>${$(b.spent)}</b> of ${$(b.planned)}</div><div class="s ${st(b)}">${leftTxt(b)}</div></div>`).join("")}</div></div>`;
+}
+if (view === "mobile" || view === "summary") document.body.classList.add("mobile");
+document.getElementById("root").innerHTML = `<div class="wrap">${{ summary: card, card, buckets, pails, single, mobile: card }[view]()}</div>`;
+window.CHART_READY = true;
+</script></body></html>

@@ -16,6 +16,15 @@ python3 build_reports.py sample/snapshot-2026-01.json --out sample/output
 python3 build_blank.py --out sample/output
 ```
 
+## Bucket charts
+- `bucket-chart.html`: the chart template for chat replies.
+  - `summary` view (all buckets) and `single` view (one bucket with a dated timeline of every expense that month).
+  - Optional views: `card` (wide), `pails` (drawn buckets) and `buckets`.
+- `bucket_chart.sql`: the query that returns the chart JSON.
+- `render_bucket_chart.py`: turns the JSON into a PNG (`--view summary|single --bucket <name>`).
+- `sample/buckets-example.json`: example data only.
+- Previews: `docs/images/buckets/`.
+
 ## Customizing
 - **Names and accounts**: `owner_label`, `account_note`, `bills_account_id` (key in `settings.balances`), `spending_account_id` (the transfer target), and their labels.
 - **Colors**: `colors.accent` (dashboard and chart).

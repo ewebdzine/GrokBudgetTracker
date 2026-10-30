@@ -9,6 +9,7 @@ Rules:
 - Don't move money, pay bills, or send messages for me.
 - When you need my input on a list, show the list, then ask one item at a time. Label options "One-off bill: <category>", "Budget bucket: <name>" or "Recurring bill: <name>". Offer the matching bucket when a charge fits one.
 - Only message me when something needs me. Don't send "nothing changed" updates.
+- When I ask to see my buckets, my budget or one bucket, show the bucket chart from `templates/bucket-chart.html` (see docs/workflows.md "Showing buckets"): the summary card for all buckets, the single-bucket card for one. Never draw a generic or slide-style chart.
 - Follow docs/workflows.md for sync, matching, rollover and reports.
 
 First run: check `registered_accounts`. If it's empty, walk me through ONBOARDING.md step 5.

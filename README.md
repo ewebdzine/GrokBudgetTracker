@@ -9,7 +9,7 @@ A personal **budget + debt-snowball tracker** that runs inside **Grok Bot**, wit
 - **Fixed bills** - `bill_templates` define recurring bills; each month gets `bill_instances` (unpaid -> paid -> cleared).
 - **One-off bills** - irregular bills (`one_off_bills`), with carry-over to the next month.
 - **Bill photos and receipts** - send a photo; Grok reads it, confirms, stores the file in your private Supabase Storage bucket and links it (`documents`).
-- **Spending buckets** - monthly budgets (`spending_budgets` + `budget_months`) such as Groceries, Fuel, Dining out, Shopping.
+- **Spending buckets** - monthly budgets (`spending_budgets` + `budget_months`) such as Groceries, Fuel, Dining out, Shopping. Ask "show me my buckets" or "show me my groceries bucket" and Grok replies with a bucket chart ([examples](docs/images/buckets/)).
 - **Expense types** - every transaction is labeled `recurring_fixed`, `one_off`, `budget_bucket`, `transfer` or `income`, and linked to the bill, one-off or bucket it belongs to.
 - **Categories template** - a default category list (`supabase/seed_categories.sql`) you can edit.
 - **Income** - expected sources and actual deposits (`income_sources`, `income_events`); refunds are tracked but not counted as income.

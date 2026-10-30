@@ -1,0 +1,15 @@
+{
+  "month": "November", "title": "November buckets", "subtitle": "Budget buckets · example data",
+  "buckets": [
+    { "name": "Groceries", "planned": 600, "spent": 412.00, "expenses": [
+      ["Corner Market", 54.20, "2026-11-01"], ["Farm stand", 21.50, "2026-11-03"], ["Sample Grocer", 88.13, "2026-11-05"], ["Corner Market", 12.52, "2026-11-05"],
+      ["Bakery Lane", 9.80, "2026-11-08"], ["Sample Grocer", 61.35, "2026-11-11"], ["Corner Market", 18.90, "2026-11-14"], ["Bulk Barn", 47.65, "2026-11-17"],
+      ["Farm stand", 14.25, "2026-11-20"], ["Sample Grocer", 52.40, "2026-11-24"], ["Corner Market", 31.30, "2026-11-27"] ] },
+    { "name": "Gas", "planned": 160, "spent": 172.40, "expenses": [
+      ["Fuel Stop", 41.10, "2026-11-04"], ["Fuel Stop", 38.75, "2026-11-11"], ["Highway Gas", 47.30, "2026-11-18"], ["Fuel Stop", 45.25, "2026-11-25"] ] },
+    { "name": "Eating out", "planned": 200, "spent": 96.00, "expenses": [
+      ["Noodle Bar", 32.40, "2026-11-07"], ["Corner Coffee", 5.75, "2026-11-12"], ["Taco Truck", 18.60, "2026-11-15"], ["Pizza Place", 39.25, "2026-11-22"] ] },
+    { "name": "Blow money", "planned": 120, "spent": 110.00, "expenses": [
+      ["Bookshop", 18.99, "2026-11-10"], ["Game Store", 59.99, "2026-11-16"], ["Movie night", 31.02, "2026-11-21"] ] }
+  ]
+}

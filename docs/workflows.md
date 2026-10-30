@@ -72,6 +72,16 @@ Anything ambiguous stays uncategorized for the user.
 4. Create the planned `transfers` row for funding the spending account.
 5. Generate the new month's Budget Plan PDF.
 
+## Showing buckets (charts)
+Whenever the user asks to see their buckets, their budget, how a bucket is doing, or "show me my groceries bucket", use the bucket chart template. Never draw a generic bar or pie chart.
+1. Run `templates/bucket_chart.sql` through the Supabase connector for the month (`:month` = 'YYYY-MM-01'). It returns one JSON `chart` value: each bucket's `planned` and `spent` (`budget_months` + `spending_budgets`) and every bucket expense for the month (`transaction_allocations` with `target_type = 'bucket'`, joined to `transactions`).
+2. Pick the view:
+   - **All buckets / "my budget"**: `--view summary`. One card with each bucket's name, "$spent of $planned", a rounded bar and "$X left" or "$X over", plus the month total.
+   - **One bucket**: `--view single --bucket "<name>"`. Big "$X left of $Y" (or "$X over the $Y plan"), the bar, then every expense from the 1st to the last day of the month under small grey date headings.
+3. Render: save the JSON to a file and run `python3 templates/render_bucket_chart.py chart.json --view summary --out buckets.png`. Then send the PNG. It uses headless Chrome, and Pillow trims the margin if it's installed.
+4. Colors: purple #8350f2 when on track, amber at 90% or more used, red when over budget, green for money left overall. White Grok theme with the purple blob.
+5. In a Page, use the dashboard Page's bucket section (`templates/dashboard.canvas.tsx`), which shows the same spent / planned / left-or-over numbers.
+
 ## Dashboard and PDFs
 1. `select public.dashboard_snapshot('YYYY-MM-01');` through the Supabase connector; save the JSON to a file and add `"pulled_at": "YYYY-MM-DD"`.
 2. `python3 templates/build_reports.py snapshot.json --config templates/config.json --out ./output`
