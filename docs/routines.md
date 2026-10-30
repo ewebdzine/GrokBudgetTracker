@@ -11,3 +11,10 @@ Sample routine prompts. Replace <placeholders>. Create them with the Grok Bot ro
 
 **Month-end report (last day of the month)**
 > Read settings.reports. If page is true, refresh my Budget Dashboard Page for this month (same Page every month, per GrokBudgetTracker templates/DASHBOARD.md) and send me the link. If pdf is true, also build the Monthly Budget Plan and Where the Money Went PDFs from dashboard_snapshot and send them. Add a 3-line summary: income received vs expected, bills left, and any bucket over budget.
+
+## GrokBudgetTracker update check
+Name: **GrokBudgetTracker update check**. Schedule: monthly, 1st of the month at 9:00 AM (any day/time is fine). Prompt:
+
+```
+GrokBudgetTracker update check. Follow docs/updates.md from https://raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/docs/updates.md. Compare my installed GrokBudgetTracker version (in your memory/setup notes) with https://raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/VERSION. If it isn't newer, stop and send me nothing. If it is newer, read CHANGELOG.md for every release since my version and send me one short plain-words message: the new version, what's new that matters to me, and which migrations, templates or prompts would change. Then ask if I want to update and wait. Do not apply anything, run any migration or change any template, routine or data until I say OK, and then follow docs/updates.md step by step, asking before each migration.
+```

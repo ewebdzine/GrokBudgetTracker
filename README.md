@@ -64,6 +64,9 @@ See [prompts/daily-use.md](prompts/daily-use.md). Examples:
 - "Build this month's dashboard and PDFs."
 - "When is the snowball done if I add $100 a month?"
 
+## Updates
+The installed version is in `VERSION`. At setup the bot records it and adds a monthly **GrokBudgetTracker update check** routine: when a new version is out it tells you what's new in plain words and asks before applying anything (migrations one at a time, only after your OK; your data is never touched). Quiet when there's nothing new. See [docs/updates.md](docs/updates.md).
+
 ## Portability
 Everything is in **your own Supabase project**: every table (accounts, transactions, bills, buckets, income, debts, categories, settings) and every file (bill photos, receipts, statements in the private `bill-documents` Storage bucket, indexed by the `documents` table). Grok holds no copy of its own. To leave Grok, or move to another tool, any time:
 - **Data**: `pg_dump` your project (Supabase dashboard > Database > connection string), or use the dashboard's backup/export.
@@ -83,6 +86,8 @@ The schema is plain Postgres and documented in [docs/database.md](docs/database.
 | `templates/` | Report generators, config, sample snapshot and rendered sample output |
 | `prompts/` | Finance bot setup prompt and daily-use prompts |
 | `docs/routines.md` | Daily Transaction Review and other routine prompts |
+| `docs/updates.md` | How the bot checks for and applies updates |
+| `VERSION` | Current release (semver) |
 | `CHANGELOG.md` | History |
 
 No license has been chosen yet.

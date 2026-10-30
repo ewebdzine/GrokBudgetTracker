@@ -1,5 +1,6 @@
 # Changelog
-## Unreleased
+## 0.7.0 - 2026-10-30
+- Update check: `VERSION` file, [docs/updates.md](docs/updates.md) (compare installed vs latest, summarize, ask before applying; migrations only after OK, data never touched). Setup records the installed version and adds a monthly "GrokBudgetTracker update check" routine that stays quiet when nothing is new.
 - Bucket charts: `templates/bucket-chart.html`, `bucket_chart.sql` and `render_bucket_chart.py`.
   - Summary card for all buckets: spent of planned, rounded bar, left or over, month total.
   - Single-bucket card: big left/over figure plus a dated timeline of every expense in the bucket that month.

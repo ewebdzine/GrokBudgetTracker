@@ -68,3 +68,6 @@ It saves the answer in `settings` as key `reports`, for example `{"page": true, 
 
 ## 8. Daily Transaction Review and other routines
 Pick the time you want your **Daily Transaction Review** each morning (for example 7:00 AM). The bot creates a routine from the sample prompt in [docs/routines.md](docs/routines.md). How it works: [docs/workflows.md#daily-transaction-review](docs/workflows.md). The review covers every `needs_review` (and previously skipped) transaction, including backlog from days it didn't run, with a count per account. Optionally add the month-rollover and month-end report routines from the same file.
+
+## 9. Version and update check
+The bot reads `VERSION` from the repo and saves "GrokBudgetTracker installed version: X.Y.Z" in its memory. It then creates a monthly routine named **GrokBudgetTracker update check** (default the 1st of the month at 9:00 AM; pick any time) using the prompt in [docs/routines.md](docs/routines.md#grokbudgettracker-update-check). It only messages you when a new version is out, tells you what's new, and asks before changing anything. Details: [docs/updates.md](docs/updates.md).
