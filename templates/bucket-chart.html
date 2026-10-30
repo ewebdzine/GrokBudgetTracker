@@ -50,9 +50,6 @@
   .bar u.ov { position: absolute; top: 0; bottom: 0; border-radius: 0 99px 99px 0;
     background: repeating-linear-gradient(-45deg, #dc2626 0 6px, #f87171 6px 11px); }
   .lim { position: absolute; top: -5px; bottom: -5px; width: 3px; margin-left: -1.5px; background: #0d0d0f; border-radius: 2px; }
-  .otag { position: absolute; top: 50%; transform: translate(6px, -50%); font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
-    color: #fff; background: var(--red); border-radius: 6px; padding: 2px 6px; line-height: 1.2; }
-  .barw.over .otag { right: 0; transform: translateY(-50%); }
   .barw.over .bar { background: #fde8e8; }
 </style></head>
 <body style="background:transparent">
@@ -68,16 +65,16 @@ const st = (b) => b.spent > b.planned ? "over" : b.spent >= 0.9 * b.planned ? "n
 const leftTxt = (b) => b.spent > b.planned ? `${$(+(b.spent - b.planned).toFixed(2))} over` : `${$(+(b.planned - b.spent).toFixed(2))} left`;
 const blob = (s = 40) => `<svg class="blob" width="${s}" height="${s}" viewBox="0 0 100 100"><path d="M50 6 C74 4 94 18 95 46 C96 74 80 95 52 95 C24 96 5 80 5 52 C4 22 24 8 50 6 Z" fill="#8350f2"/><ellipse cx="38" cy="28" rx="20" ry="10" fill="#fff" opacity=".12" transform="rotate(-20 38 28)"/><ellipse cx="46" cy="38" rx="5.2" ry="8.5" fill="#fff"/><ellipse cx="64" cy="38" rx="5.2" ry="8.5" fill="#fff"/></svg>`;
 const head = (t, s) => `<div class="hd">${blob()}<div><h1>${t}</h1><small>${s}</small></div></div>`;
-// Spent-vs-planned bar. Over budget: the track is rescaled so the planned limit sits at 75% of the width, the part
-// within the limit keeps the normal color, the overflow past the limit marker is red with diagonal stripes, and an
-// "Over" tag sits at the end. Near the limit (90%+) the fill is amber and the limit marker shows at the end.
-const LIMIT_AT = 75;
+// Spent-vs-planned bar. Over budget: the track is rescaled so the planned limit sits at 80% of the width, the part
+// within the limit keeps the normal color, the overflow past the limit marker is red with diagonal stripes.
+// Near the limit (90%+) the fill is amber and the limit marker shows at the end.
+const LIMIT_AT = 80;
 const bar = (b) => {
   const s = st(b), r = b.spent / b.planned;
   if (s !== "over") return `<div class="barw"><div class="bar ${s}"><u style="width:${Math.min(100, 100 * r)}%"></u></div>${s === "near" ? `<i class="lim" style="left:100%"></i>` : ""}</div>`;
-  const end = Math.min(86, Math.max(LIMIT_AT + 9, LIMIT_AT * r));  // overflow always visible, leaves room for the tag
+  const end = Math.min(100, Math.max(LIMIT_AT + 8, LIMIT_AT * r));  // overflow always visible
   return `<div class="barw over"><div class="bar"><u class="in" style="width:${LIMIT_AT}%"></u><u class="ov" style="left:${LIMIT_AT}%;width:${end - LIMIT_AT}%"></u></div>
-    <i class="lim" style="left:${LIMIT_AT}%"></i><span class="otag">Over</span></div>`;
+    <i class="lim" style="left:${LIMIT_AT}%"></i></div>`;
 };
 function card() {
   const P = D.buckets.reduce((a, b) => a + b.planned, 0), S = D.buckets.reduce((a, b) => a + b.spent, 0);
