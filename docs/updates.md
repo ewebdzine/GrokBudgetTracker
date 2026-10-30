@@ -4,7 +4,7 @@ How the Finance bot checks for a newer GrokBudgetTracker and helps the user upda
 
 ## Where versions live
 - **Installed version**: recorded at install in your memory/setup notes as `GrokBudgetTracker installed version: X.Y.Z` (ONBOARDING step 9). Also kept in the `settings` row `grokbudgettracker` (`{"version": "X.Y.Z"}`) if the user has it. If neither exists, ask the user once which version they installed (or treat it as `0.0.0` and say so).
-- **Latest version**: `https://raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/VERSION` (one semver line, e.g. `0.7.0`).
+- **Latest version**: `https://raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/VERSION` (one semver line, e.g. `0.8.0`).
 - **What changed**: `https://raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/CHANGELOG.md`, one `## X.Y.Z - date` heading per release.
 
 ## Check
@@ -27,6 +27,11 @@ Send one short message in plain words:
 2. **Templates, prompts and docs**: re-pull them from `raw.githubusercontent.com/ewebdzine/GrokBudgetTracker/main/...`. Keep the user's own files: never overwrite `templates/config.json`, their routine times, or anything they customized; if a template they edited changed upstream, show the difference and ask.
 3. **Routines and setup prompt**: if the release changes a routine prompt or the setup rules, show the new text and update only after OK.
 4. **Record**: update the installed version in memory (and the `settings` row if used) to the new version, then confirm in one line what changed.
+
+## Upgrading to 0.8.0 (Low balance watch)
+- Optional new routine **Low balance watch**: offer it, and after the user's OK create it from docs/routines.md (every 4 hours during the day, suggested 8 AM, 12 PM, 4 PM, 8 PM) and ask for a cushion (default $100, saved in `settings` key `low_balance_watch`).
+- New read-only template `templates/low_balance_watch.sql`. No migrations.
+- Add the setup rule line for the Low balance watch after OK.
 
 ## Upgrading to 0.7.0 (Daily huddle)
 - The Daily Transaction Review routine is now the **Daily huddle**. Show the user the new prompt from docs/routines.md and, after their OK, replace the routine's prompt (renaming it is optional; the old name is an alias). Keep their time.

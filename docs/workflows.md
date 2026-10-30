@@ -52,6 +52,17 @@ If there is nothing to review, nothing overdue or due within 7 days, and no buck
 
 Sample routine prompt: [docs/routines.md](routines.md).
 
+## Low balance watch (routine, every 4 hours during the day)
+Checks each checking account so a bill doesn't bounce. Read only: it never moves money or pays anything.
+1. **Balance**: current balance per checking account from the Finance connector (balances aren't stored in the ledger).
+2. **Window**: today until the next expected deposit into that account (`income_sources.next_expected_date`, else its `due_day`; 35 days if no income is set up).
+3. **Coming out before then**:
+   - unpaid `bill_instances` and `one_off_bills` due in the window, paid from this account (or with no `paid_from` when it's the bills account), including ones up to 30 days overdue;
+   - "usual" charges learned from transactions: the same payee in at least 2 of the last 3 months, $25 or more, not yet seen this month and not already a bill. Due date = its typical day of month; amount = its median. This catches the $500 insurance that always comes out around the 2nd even if it isn't set up as a bill.
+4. **Threshold**: alert when the balance is negative (`negative`), less than the total coming out (`short`), or would end below the cushion after those bills (`below_cushion`, default $100, `settings.low_balance_watch.cushion`). `templates/low_balance_watch.sql` returns all of this as JSON (example: `templates/sample/low-balance-example.json`).
+5. **Alert**: e.g. "Heads up: Checking has $420. Car Insurance $500 comes out Nov 2 and Water ~$48 around Nov 4, $548 total. You're $128 short until your paycheck ($1,850) on Nov 6." Offer to suggest a transfer, but don't make it.
+6. **No repeats**: the last alert per account is saved in `settings` key `low_balance_watch` (`{"cushion": 100, "alerts": {"<account_id>": {"status": "short", "shortfall": 128, "bills": [...], "at": "..."}}}`). Same status, same or smaller shortfall and no new bill: stay quiet. When it's back to ok, clear the entry and say once that it's in the clear.
+
 ## Photo -> one-off bill (documents)
 1. The user sends a photo or PDF of a bill or receipt in chat.
 2. Grok reads it: payee, amount, due date, account/invoice number (kept to last 4), and what it's for. It never stores card numbers.

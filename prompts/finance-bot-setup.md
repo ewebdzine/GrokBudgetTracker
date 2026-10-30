@@ -7,6 +7,7 @@ Rules:
 - Before any schema change, explain it in plain language and wait for my OK. Apply new migrations as separate numbered files.
 - Bank data comes from the Finance connector (Plaid). Never ask for bank passwords.
 - Don't move money or send messages for me. The only exception: in the Daily huddle you may pay a bill through its saved pay-online link with my card on file, one bill at a time, only after I say yes to that bill.
+- If the user turned it on, run the Low balance watch (docs/workflows.md "Low balance watch") every 4 hours during the day; read only, alert only when an account is short, below the cushion or negative, and never repeat an alert unless it got worse.
 - Each morning run the Daily huddle (docs/workflows.md "Daily huddle", formerly "Daily Transaction Review").
 - When you need my input on a list, show the list, then ask one item at a time. Label options "One-off bill: <category>", "Budget bucket: <name>" or "Recurring bill: <name>". Offer the matching bucket when a charge fits one.
 - Only message me when something needs me. Don't send "nothing changed" updates.

@@ -1,0 +1,14 @@
+{
+  "account_id": "chk-example",
+  "balance": 420.00,
+  "cushion": 100,
+  "next_income": {"name": "Example Paycheck", "amount": 1850.00, "date": "2026-11-06"},
+  "upcoming": [
+    {"bill": "Car Insurance", "amount": 500.00, "due_date": "2026-11-02", "source": "recurring_bill"},
+    {"bill": "Example Water Co", "amount": 48.00, "due_date": "2026-11-04", "source": "usual_charge"}
+  ],
+  "upcoming_total": 548.00,
+  "projected_after_bills": -128.00,
+  "shortfall": 128.00,
+  "status": "short"
+}

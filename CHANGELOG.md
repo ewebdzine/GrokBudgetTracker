@@ -1,4 +1,8 @@
 # Changelog
+## 0.8.0 - 2026-10-30
+- **Low balance watch**: a routine every 4 hours during the day (suggested 8 AM, 12 PM, 4 PM, 8 PM) that checks each checking account's live balance against the bills coming out before the next expected deposit: unpaid fixed and one-off bills due before payday, plus "usual" charges learned from past transactions (same payee in 2 of the last 3 months, typical day of month, median amount). Alerts when the balance is negative, is less than those bills, or would end below a cushion (default $100); names each bill, amount and due date, the shortfall and the next deposit. Quiet otherwise; the same alert isn't repeated unless it gets worse (last alert kept in `settings` key `low_balance_watch`).
+- New read-only template `templates/low_balance_watch.sql`, example output `templates/sample/low-balance-example.json`. No migration.
+
 ## 0.7.0 - 2026-10-30
 - Bucket charts: removed the "Over" tag from over-budget bars; the limit marker now sits at 80% and the red-striped overflow can run to the end of the bar.
 - Daily Transaction Review becomes the **Daily huddle** (old name kept as an alias): same transaction review, plus bills overdue or due in the next 7 days (fixed and one-off) with an offer to pay ones that have a saved pay-online link using the card on file, only after a yes per bill; the bucket summary chart when buckets changed; and a callout for buckets over or near budget. Stays quiet when nothing is new, due or over. Bill photos save a pay-online link in `notes` as `pay: <url>`. No schema change.

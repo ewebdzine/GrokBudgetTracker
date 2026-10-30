@@ -13,6 +13,13 @@ Name: **Daily huddle** (formerly "Daily Transaction Review"; existing installs c
 **Month-end report (last day of the month)**
 > Read settings.reports. If page is true, refresh my Budget Dashboard Page for this month (same Page every month, per GrokBudgetTracker templates/DASHBOARD.md) and send me the link. If pdf is true, also build the Monthly Budget Plan and Where the Money Went PDFs from dashboard_snapshot and send them. Add a 3-line summary: income received vs expected, bills left, and any bucket over budget.
 
+## Low balance watch
+Name: **Low balance watch**. Schedule: every 4 hours during the day, suggested 8:00 AM, 12:00 PM, 4:00 PM and 8:00 PM local time. Prompt:
+
+```
+Run my Low balance watch from GrokBudgetTracker docs/workflows.md ("Low balance watch"). For each checking account in my budget tracker (account_type checking), get its current balance from the Finance connector, then run templates/low_balance_watch.sql with that account id, balance, today's date and my cushion (settings low_balance_watch.cushion, default 100). Alert me only if the status is negative, short or below_cushion: name each bill coming out before my next deposit with amount and due date, the total, the shortfall (or how far under the cushion I'd end), and the next expected deposit with its date and amount. Compare with the last alert saved in settings key low_balance_watch for that account: if the status is the same and the shortfall is not bigger and no new bill was added, send nothing. After alerting, save status, shortfall, bills and time there; when an account is back to ok, clear its entry (and send one short "back in the clear" line only if I was alerted). Read only: never move money, pay a bill or change any transaction. If everything is ok, send nothing.
+```
+
 ## GrokBudgetTracker update check
 Name: **GrokBudgetTracker update check**. Schedule: monthly, 1st of the month at 9:00 AM (any day/time is fine). Prompt:
 
