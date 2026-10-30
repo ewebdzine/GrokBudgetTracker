@@ -17,7 +17,7 @@ A personal **budget + debt-snowball tracker** that runs inside **Grok Bot**, wit
 - **Debt snowball** - `debts` + `debt_payments`; the report generator simulates snowball and avalanche payoff dates.
 - **Any transaction source** - one `transactions` table for Plaid bank/card feeds, Venmo, PayPal, CSV imports and manual entry (`source` + `external_id`).
 - **Split payments** - `transaction_allocations` splits one transaction across bills, one-offs, budget buckets and debts.
-- **Daily Transaction Review** - every morning the bot pulls new transactions, auto-matches obvious recurring bills, then interviews you one transaction at a time and recaps bucket balances.
+- **Daily huddle** (formerly Daily Transaction Review) - every morning the bot pulls new transactions, auto-matches obvious recurring bills and interviews you one transaction at a time; lists bills overdue or due in the next 7 days and offers to pay ones with a saved pay-online link (card on file, only after your yes per bill); shows the bucket chart when buckets changed and calls out any bucket over or near budget. Quiet when there is nothing to report.
 - **Daily bank sync and matching** - the bot pulls new transactions from the Finance (Plaid-based) connector, matches them to bills, and asks you about the rest one at a time.
 - **Monthly dashboard and PDFs** - `templates/build_reports.py` renders an HTML dashboard, a *Monthly Budget Plan* PDF and a *Where the Money Went* PDF from one JSON snapshot. `templates/build_blank.py` prints blank fill-in-by-pencil versions.
 
@@ -85,7 +85,7 @@ The schema is plain Postgres and documented in [docs/database.md](docs/database.
 | `supabase/functions/bill-documents` | Optional Edge Function to upload documents and make signed URLs |
 | `templates/` | Report generators, config, sample snapshot and rendered sample output |
 | `prompts/` | Finance bot setup prompt and daily-use prompts |
-| `docs/routines.md` | Daily Transaction Review and other routine prompts |
+| `docs/routines.md` | Daily huddle and other routine prompts |
 | `docs/updates.md` | How the bot checks for and applies updates |
 | `VERSION` | Current release (semver) |
 | `CHANGELOG.md` | History |

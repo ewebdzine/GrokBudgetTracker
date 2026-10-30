@@ -23,7 +23,7 @@ The file in this repo holds **fake sample data** in one `DATA` constant at the t
 Notes:
 - Amounts are plain numbers; the Page formats them.
 - Never put account numbers beyond the last 4, Plaid ids, or keys in `DATA`.
-- The Page shows status as of the date in `asOf`; it is not live. Grok refreshes it after the Daily Transaction Review or at month end.
+- The Page shows status as of the date in `asOf`; it is not live. Grok refreshes it after the Daily huddle or at month end.
 
 ## Bills by week (timeline)
 

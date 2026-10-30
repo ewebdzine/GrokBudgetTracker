@@ -12,7 +12,10 @@
 5. Run matching (below), then queue anything left for categorizing.
 6. Report only what needs the user: new uncategorized items, past-due bills, low balance. Say nothing if nothing changed.
 
-## Daily Transaction Review (routine, at the time you pick in ONBOARDING step 8)
+## Daily huddle (routine, at the time you pick in ONBOARDING step 8)
+Formerly "Daily Transaction Review" (same routine, renamed; the old name is an alias). Four parts, in order: transactions, bills, buckets, alerts.
+
+### 1. Transactions
 1. **Pull**: sync every `accounts` row with `connected = true` (see Daily sync). Non-connected accounts (cash, CSV-only) are skipped unless the user uploaded a file.
 2. **Queue**: the review covers every row in `needs_review_transactions` (review_status `needs_review` or `skipped`), not just today's import, so missed days and earlier skips are included.
 3. **Auto-apply obvious matches only**: a new outgoing transaction that matches exactly one unpaid `bill_instances` row by `payee_hint` and amount (within the bill's tolerance) is matched to that **recurring bill** automatically and set to `review_status = 'auto_applied'`. Nothing else is auto-applied: no guessing one-offs, buckets or splits.
@@ -30,8 +33,22 @@
    - a typed answer (free text, e.g. "transfer to savings" or "refund").
 7. **Write**: each answer sets `review_status = 'categorized'` and `reviewed_at`, and becomes `transaction_allocations` rows (one row for a single target, several for a split: `target_type` bill / one_off / bucket / debt with the matching id and amount; buckets get `budget_month`). Also set `transactions.expense_type`, `category_id` and the simple link column, mark bills `cleared`, create a `one_off_bills` row when needed, and add bucket amounts to `budget_months.spent`. Transfers and income don't create allocations; they set `matched_transfer` / `matched_income_event`.
 8. **Income suggestions**: if `income_source_suggestions` has rows, ask "This deposit repeats about every N days at about $X. Add it as an income source?" (name, frequency, account) and link the past deposits.
-9. **Recap**: updated balance for every bucket touched ("Groceries: $310 of $500, $190 left"), a warning for any bucket over budget ("Shopping is $61.22 over its $100"), bills still unpaid this month, and anything skipped.
-10. If the queue is empty, send nothing. `bank_status` (pending/posted) is shown for information only; pending items can be reviewed too.
+9. **Recap**: updated balance for every bucket touched ("Groceries: $310 of $500, $190 left") and anything skipped.
+10. `bank_status` (pending/posted) is shown for information only; pending items can be reviewed too.
+
+### 2. Bills due
+1. List unpaid `bill_instances` (fixed) and `one_off_bills` with `due_date` before today (overdue), today, or within the next 7 days: payee, amount, due date, overdue first.
+2. **Pay-online links**: a bill's saved link is the `pay: <url>` line in its `notes` (saved from the bill photo, see Photo -> one-off bill). For each bill with a link, offer "Pay <payee> $<amount> now with your card on file?" Ask per bill. Pay only after the user says yes to that bill; never batch, never pay without a yes, never enter a new card. After paying, set `status = 'paid'`, `paid_date`, `paid_from`, and confirm "Paid with card on file •••• 1234".
+3. Bills without a link: remind only.
+
+### 3. Bucket chart
+If any bucket's `spent` changed since the last huddle (new allocations), show the summary chart (`templates/bucket-chart.html`, summary view; see Showing buckets).
+
+### 4. Over / near budget
+Call out every bucket at 90% or more of plan ("Blow money: $10 left of $120") or over ("Gas is $12.40 over its $160"). If the user asks about one, show its single-bucket chart.
+
+### Stay quiet
+If there is nothing to review, nothing overdue or due within 7 days, and no bucket over budget, send nothing.
 
 Sample routine prompt: [docs/routines.md](routines.md).
 
@@ -40,8 +57,9 @@ Sample routine prompt: [docs/routines.md](routines.md).
 2. Grok reads it: payee, amount, due date, account/invoice number (kept to last 4), and what it's for. It never stores card numbers.
 3. Grok **confirms** with one question: "Example Dental, $180.00, due 1/25 - save as `One-off bill: Medical`?" with options to fix any field, link it to an existing bill or transaction instead, or cancel.
 4. On yes: upload the file to the `bill-documents` bucket at `<yyyy>/<mm>/<uuid>-<file>` and insert the `documents` row (`doc_type`, `sha256`, `ocr_text`). If the sha256 already exists, reuse that row and say so.
-5. Create the `one_off_bills` record (or link an existing one, a `bill_instances` row, or a transaction) and set the document's link column.
-6. Later, to show it, Grok creates a signed URL (valid about 10 minutes) and opens or sends that. Never a public link.
+5. If the bill shows a pay-online link (a payment URL or "pay online at ..."), save it in the bill's `notes` as `pay: <url>` and tell the user it was saved.
+6. Create the `one_off_bills` record (or link an existing one, a `bill_instances` row, or a transaction) and set the document's link column.
+7. Later, to show it, Grok creates a signed URL (valid about 10 minutes) and opens or sends that. Never a public link.
 
 How files get into Storage: the Supabase connector runs SQL but has no Storage upload tool. Use the optional Edge Function in `supabase/functions/bill-documents` (`/upload`, `/signed-url`, protected by a secret you set in Supabase and save in the Grok vault), or upload in the Supabase dashboard (Storage > bill-documents) and let Grok insert the row.
 
@@ -54,7 +72,7 @@ For each new outgoing transaction:
 5. **Split payments**: one charge covering several bills or a bill plus bucket spending -> write `transaction_allocations` rows and check `allocation_check.unallocated = 0`.
 Anything ambiguous stays uncategorized for the user.
 
-## Categorizing (asking the user, outside the daily review)
+## Categorizing (asking the user, outside the daily huddle)
 - Show the full list first (date, amount, description, account), then **ask one item at a time** so the user can just tap or type an answer.
 - Each option is labeled with what it is:
   - `One-off bill: <category>` (for example `One-off bill: Medical`)

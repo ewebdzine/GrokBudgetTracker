@@ -28,6 +28,12 @@ Send one short message in plain words:
 3. **Routines and setup prompt**: if the release changes a routine prompt or the setup rules, show the new text and update only after OK.
 4. **Record**: update the installed version in memory (and the `settings` row if used) to the new version, then confirm in one line what changed.
 
+## Upgrading to 0.7.0 (Daily huddle)
+- The Daily Transaction Review routine is now the **Daily huddle**. Show the user the new prompt from docs/routines.md and, after their OK, replace the routine's prompt (renaming it is optional; the old name is an alias). Keep their time.
+- New in the huddle: bills overdue or due within 7 days, paying bills with a saved pay-online link using the card on file (only after a yes per bill), the bucket summary chart when buckets changed, and over/near-budget callouts.
+- Update the setup rules after OK: paying a bill in the huddle with the user's yes is the one exception to "don't move money".
+- No migrations; pay-online links go in existing bill `notes` as `pay: <url>`.
+
 ## Never
 - Apply anything without the user's OK, or batch-approve migrations they haven't seen.
 - Touch, export or send the user's financial data as part of an update.

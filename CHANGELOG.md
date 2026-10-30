@@ -1,5 +1,6 @@
 # Changelog
 ## 0.7.0 - 2026-10-30
+- Daily Transaction Review becomes the **Daily huddle** (old name kept as an alias): same transaction review, plus bills overdue or due in the next 7 days (fixed and one-off) with an offer to pay ones that have a saved pay-online link using the card on file, only after a yes per bill; the bucket summary chart when buckets changed; and a callout for buckets over or near budget. Stays quiet when nothing is new, due or over. Bill photos save a pay-online link in `notes` as `pay: <url>`. No schema change.
 - Update check: `VERSION` file, [docs/updates.md](docs/updates.md) (compare installed vs latest, summarize, ask before applying; migrations only after OK, data never touched). Setup records the installed version and adds a monthly "GrokBudgetTracker update check" routine that stays quiet when nothing is new.
 - Bucket charts: `templates/bucket-chart.html`, `bucket_chart.sql` and `render_bucket_chart.py`.
   - Summary card for all buckets: spent of planned, rounded bar, left or over, month total.
